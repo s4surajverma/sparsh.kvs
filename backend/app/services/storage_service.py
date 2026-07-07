@@ -1,16 +1,18 @@
 """
-SPARSH - Storage Provider Interface & Google Drive Implementation
+SPARSH - Storage Provider Interface & Implementations
 
-Strategy pattern for file storage. The system stores metadata in the database
-and delegates actual file storage to Google Drive via OAuth 2.0.
+Strategy pattern for file storage. Business logic only talks to StorageProvider,
+never directly to Google Drive or the filesystem.
 
-Provider:
-- GoogleDriveProvider: Stores files on Google Drive via OAuth (production)
+Providers:
+- LocalStorageProvider: Stores files on the server filesystem (development/fallback)
+- GoogleDriveProvider: Stores files on Google Drive via OAuth 2.0 (production)
 """
 
 import io
 import logging
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 from app.core.config import settings
 
@@ -31,7 +33,8 @@ class StorageProvider(ABC):
             content_type: MIME type of the file.
 
         Returns:
-            The provider-specific storage identifier (e.g. Google Drive File ID).
+            The provider-specific storage identifier (e.g. Google Drive File ID
+            or local file path).
         """
         ...
 
@@ -63,6 +66,54 @@ class StorageProvider(ABC):
 
 
 # ============================================
+# Local Storage Provider
+# ============================================
+
+class LocalStorageProvider(StorageProvider):
+    """
+    Stores files on the server's local filesystem.
+
+    Files are written under REPORT_STORAGE_DIR using the storage_key
+    as a relative path (e.g. "reports/2024001/2024001_2023-2024.pdf").
+
+    WARNING: On ephemeral hosting (e.g. Render free tier), files may be
+    lost on redeploy/restart. Use Google Drive or a persistent disk for
+    durable storage.
+    """
+
+    def __init__(self):
+        self.base_dir = Path(settings.REPORT_STORAGE_DIR).resolve()
+        self.base_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"LocalStorageProvider initialized (base_dir={self.base_dir})")
+
+    def upload_file(self, file_bytes: bytes, storage_key: str, content_type: str = "application/pdf") -> str:
+        """Write file bytes to disk. Returns the storage_key (relative path)."""
+        file_path = self.base_dir / storage_key
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_bytes(file_bytes)
+        logger.info(f"Saved to local storage: {storage_key} ({len(file_bytes)} bytes)")
+        return storage_key
+
+    def get_file(self, storage_key: str) -> bytes | None:
+        """Read file bytes from disk. Returns None if the file doesn't exist."""
+        file_path = self.base_dir / storage_key
+        if not file_path.is_file():
+            logger.warning(f"Local file not found: {storage_key}")
+            return None
+        return file_path.read_bytes()
+
+    def delete_file(self, storage_key: str) -> bool:
+        """Remove a file from disk. Returns True if deleted, False if not found."""
+        file_path = self.base_dir / storage_key
+        if not file_path.is_file():
+            logger.warning(f"Cannot delete — file not found: {storage_key}")
+            return False
+        file_path.unlink()
+        logger.info(f"Deleted from local storage: {storage_key}")
+        return True
+
+
+# ============================================
 # Google Drive Provider (OAuth-based)
 # ============================================
 
@@ -73,6 +124,8 @@ class GoogleDriveProvider(StorageProvider):
     Files are uploaded under the admin's own Google account,
     using their personal Drive quota. This works with both
     free Gmail and Google Workspace accounts.
+
+    Supports both My Drive and Shared Drives via supportsAllDrives.
     """
 
     def __init__(self, parent_folder_id: str | None = None):
@@ -106,6 +159,11 @@ class GoogleDriveProvider(StorageProvider):
                 )
 
             refresh_token = decrypt_string(row.google_oauth_refresh_token_encrypted)
+
+            # Use the scope that was granted at connection time
+            scope = row.google_oauth_scope or "https://www.googleapis.com/auth/drive"
+            if not scope.startswith("https://"):
+                scope = f"https://www.googleapis.com/auth/{scope}"
         finally:
             db.close()
 
@@ -115,7 +173,7 @@ class GoogleDriveProvider(StorageProvider):
             token_uri="https://oauth2.googleapis.com/token",
             client_id=settings.GOOGLE_CLIENT_ID,
             client_secret=settings.GOOGLE_CLIENT_SECRET,
-            scopes=["https://www.googleapis.com/auth/drive"],
+            scopes=[scope],
         )
 
         self._service = build("drive", "v3", credentials=creds)
@@ -150,7 +208,10 @@ class GoogleDriveProvider(StorageProvider):
                 io.BytesIO(file_bytes), mimetype=content_type, resumable=True
             )
             file = service.files().create(
-                body=file_metadata, media_body=media, fields="id"
+                body=file_metadata,
+                media_body=media,
+                fields="id",
+                supportsAllDrives=True,
             ).execute()
 
             drive_file_id = file.get("id")
@@ -175,7 +236,10 @@ class GoogleDriveProvider(StorageProvider):
             service = self._get_service()
             from googleapiclient.http import MediaIoBaseDownload
 
-            request = service.files().get_media(fileId=storage_key)
+            request = service.files().get_media(
+                fileId=storage_key,
+                supportsAllDrives=True,
+            )
             buffer = io.BytesIO()
             downloader = MediaIoBaseDownload(buffer, request)
 
@@ -201,7 +265,10 @@ class GoogleDriveProvider(StorageProvider):
         """
         try:
             service = self._get_service()
-            service.files().delete(fileId=storage_key).execute()
+            service.files().delete(
+                fileId=storage_key,
+                supportsAllDrives=True,
+            ).execute()
             logger.info(f"Deleted from Google Drive: {storage_key}")
             return True
         except Exception as e:
@@ -277,9 +344,11 @@ class GoogleDriveProvider(StorageProvider):
 
 def get_storage_provider() -> StorageProvider:
     """
-    Factory function that returns the configured Google Drive storage provider.
-    Reads the folder ID from the AppSettings DB table.
+    Factory function that returns the configured storage provider.
+    Reads the storage_provider and folder ID from the AppSettings DB table.
+    Falls back to LocalStorageProvider if no settings exist.
     """
+    provider_name = "local"
     folder_id = None
 
     try:
@@ -290,10 +359,37 @@ def get_storage_provider() -> StorageProvider:
         try:
             row = db.query(AppSettings).first()
             if row:
+                provider_name = row.storage_provider or "local"
                 folder_id = row.drive_folder_id
         finally:
             db.close()
     except Exception as e:
         logger.error(f"Failed to read storage settings from DB: {e}")
 
-    return GoogleDriveProvider(parent_folder_id=folder_id)
+    if provider_name == "google_drive":
+        return GoogleDriveProvider(parent_folder_id=folder_id)
+    else:
+        return LocalStorageProvider()
+
+
+def get_storage_provider_name() -> str:
+    """
+    Returns the current storage provider name as stored in the DB.
+    Used for writing normalized storage_provider values to HistoricalReport rows.
+    Returns "local" or "google_drive".
+    """
+    try:
+        from app.db.database import SessionLocal
+        from app.models.app_settings import AppSettings
+
+        db = SessionLocal()
+        try:
+            row = db.query(AppSettings).first()
+            if row and row.storage_provider:
+                return row.storage_provider
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error(f"Failed to read storage provider name: {e}")
+
+    return "local"

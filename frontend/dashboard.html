@@ -66,6 +66,11 @@
                         </li>
                         <!-- Role-restricted items -->
                         <li class="nav-item role-admin role-teacher hidden">
+                            <a class="nav-link" href="/marks-entry" data-view="marks-entry">
+                                Marks Entry
+                            </a>
+                        </li>
+                        <li class="nav-item role-admin role-teacher hidden">
                             <a class="nav-link" href="/import" data-view="import">
                                 Excel Import
                             </a>
@@ -153,7 +158,10 @@
                 <div id="view-users" class="view-section hidden">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">User Management</h1>
-                        <button class="btn btn-primary" id="btnNewUser" data-bs-toggle="modal" data-bs-target="#userModal">Add New User</button>
+                        <div>
+                            <a href="/home" class="btn btn-outline-secondary me-2" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                            <button class="btn btn-primary" id="btnNewUser" data-bs-toggle="modal" data-bs-target="#userModal">Add New User</button>
+                        </div>
                     </div>
                     <div id="usersAlertArea"></div>
                     <div class="table-responsive">
@@ -178,7 +186,10 @@
                 <div id="view-academic-years" class="view-section hidden">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Academic Years</h1>
-                        <button class="btn btn-primary" id="btnNewYear" data-bs-toggle="modal" data-bs-target="#yearModal">Add New Year</button>
+                        <div>
+                            <a href="/home" class="btn btn-outline-secondary me-2" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                            <button class="btn btn-primary" id="btnNewYear" data-bs-toggle="modal" data-bs-target="#yearModal">Add New Year</button>
+                        </div>
                     </div>
                     <div id="yearsAlertArea"></div>
                     <div class="table-responsive">
@@ -198,7 +209,11 @@
                 </div>
 
                 <!-- View: About -->
-                <div id="view-about" class="view-section hidden pt-4">
+                <div id="view-about" class="view-section hidden">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                        <h1 class="h2">About</h1>
+                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                    </div>
                     
                     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, #f3e8ff, #ffffff);">
                         <div class="d-flex align-items-center mb-3">
@@ -260,6 +275,7 @@
                 <div id="view-search" class="view-section hidden">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Student Search</h1>
+                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
                     </div>
 
                     <!-- Search Form -->
@@ -324,10 +340,82 @@
                     </div>
                 </div>
 
+                <!-- View: Marks Entry -->
+                <div id="view-marks-entry" class="view-section hidden">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Marks Entry</h1>
+                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                    </div>
+
+                    <div id="marksAlertArea"></div>
+
+                    <!-- Selection Form -->
+                    <div class="section-card">
+                        <form id="marksLoadForm" class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Academic Year</label>
+                                <input type="text" class="form-control" id="marksYearDisplay" readonly>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Class</label>
+                                <select class="form-select" id="marksClass" required></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Section</label>
+                                <input type="text" class="form-control" id="marksSection" required placeholder="e.g. A">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Exam</label>
+                                <select class="form-select" id="marksExam" required></select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100" id="btnLoadStudents">Load Students</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Marks Grid -->
+                    <div id="marksGridContainer" class="hidden mt-4">
+                        <!-- Grid Info Bar -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="badge bg-primary fs-6 me-2" id="marksGridInfo"></span>
+                                <span class="badge bg-info fs-6" id="marksGridExamInfo"></span>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-secondary me-2" id="btnClearGrid">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eraser me-1" viewBox="0 0 16 16"><path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414l-3.879-3.879zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"/></svg>
+                                    Clear All
+                                </button>
+                                <button type="button" class="btn btn-success btn-lg" id="btnSaveMarks">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check2-circle me-1" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg>
+                                    Save All Marks
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Scrollable Table -->
+                        <div class="table-responsive" style="max-height: 70vh; overflow: auto;">
+                            <table class="table table-bordered table-hover table-sm align-middle" id="marksTable" style="min-width: 800px;">
+                                <thead class="table-light" id="marksTableHead" style="position: sticky; top: 0; z-index: 2;">
+                                    <!-- Populated dynamically -->
+                                </thead>
+                                <tbody id="marksTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Save Result -->
+                        <div id="marksSaveResult" class="mt-3 hidden"></div>
+                    </div>
+                </div>
+
                 <!-- View: Import -->
                 <div id="view-import" class="view-section hidden">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Excel Result Import</h1>
+                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
                     </div>
 
                     <div id="importAlertArea"></div>
@@ -565,6 +653,7 @@
                 <div id="view-reports" class="view-section hidden">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Previous Years' Report Cards</h1>
+                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
                     </div>
 
                     <!-- Tabs -->
@@ -654,25 +743,71 @@
                 <div id="view-storage-settings" class="view-section hidden">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2 fw-bold text-dark">Storage Settings</h1>
+                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
                     </div>
 
                     <div id="storageAlertArea"></div>
 
+                    <!-- Provider Toggle -->
+                    <div class="row g-3 mb-4" id="providerToggleArea">
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 provider-card" id="providerCardLocal" role="button" style="cursor: pointer; transition: all 0.2s ease;">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, #e0f2fe, #bae6fd);">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#0284c7" class="bi bi-hdd" viewBox="0 0 16 16"><path d="M4.5 11a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zM3 10.5a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0z"/><path d="M16 11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V9.51c0-.418.105-.83.305-1.197l2.472-4.531A1.5 1.5 0 0 1 4.094 3h7.812a1.5 1.5 0 0 1 1.317.782l2.472 4.53c.2.368.305.78.305 1.198V11zM3.655 4.26 1.592 8.043C1.724 8.014 1.86 8 2 8h12c.14 0 .276.014.408.043L12.345 4.26a.5.5 0 0 0-.439-.26H4.094a.5.5 0 0 0-.44.26zM1 10v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1H1z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Local Storage</h6>
+                                        <small class="text-muted">Store files on this server</small>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <span class="badge bg-secondary rounded-pill" id="localBadge" style="width: 65px;">Select</span>
+                                    </div>
+                                </div>
+                                <div id="localDurabilityWarning" class="alert alert-warning border-warning border-opacity-25 bg-warning bg-opacity-10 rounded-3 mb-0 mt-2 py-2 px-3 hidden" style="font-size: 0.8rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-exclamation-triangle me-1" viewBox="0 0 16 16"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/></svg>
+                                    Files may be lost on server restart or redeploy. Use Google Drive for reliable storage.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 provider-card" id="providerCardDrive" role="button" style="cursor: pointer; transition: all 0.2s ease;">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, #dcfce7, #bbf7d0);">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#16a34a"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Google Drive</h6>
+                                        <small class="text-muted">Store files in your Drive account</small>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <span class="badge bg-secondary rounded-pill" id="driveBadge" style="width: 65px;">Select</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Current Status Panel -->
                     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" id="storageStatusPanel">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0 fw-bold">Storage Provider: <span class="text-primary" id="statusProvider">Google Drive</span></h5>
+                            <h5 class="mb-0 fw-bold">Storage Provider: <span class="text-primary" id="statusProvider">Local Storage</span></h5>
                         </div>
                         
-                        <div id="driveDetailedStatus">
+                        <!-- Local Storage Status (shown when local is selected) -->
+                        <div id="localStatusSection">
+                            <p class="text-muted mb-0">Report cards will be stored on this server's filesystem. No additional configuration needed.</p>
+                        </div>
+
+                        <!-- Google Drive Status (shown when drive is selected) -->
+                        <div id="driveDetailedStatus" class="hidden">
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6 class="text-muted mb-3 fw-bold text-uppercase" style="letter-spacing: 0.05em;">Configuration Checklist</h6>
                                     <ul class="list-unstyled" id="driveChecklist">
                                         <li class="mb-2"><span id="chkGoogleConnected"><span class="badge bg-secondary rounded-pill me-2" style="width: 65px;">Pending</span></span> Google Account Connection</li>
-                                        <li class="mb-2"><span id="chkFolderUrl"><span class="badge bg-secondary rounded-pill me-2" style="width: 65px;">Pending</span></span> Folder URL Configuration</li>
-                                        <li class="mb-2"><span id="chkFolderVerified"><span class="badge bg-secondary rounded-pill me-2" style="width: 65px;">Pending</span></span> Folder Access Verification</li>
-                                        <li class="mb-2"><span id="chkUploadTest"><span class="badge bg-secondary rounded-pill me-2" style="width: 65px;">Pending</span></span> System Upload Test</li>
+                                        <li class="mb-2"><span id="chkFolderSelected"><span class="badge bg-secondary rounded-pill me-2" style="width: 65px;">Pending</span></span> Folder Selected</li>
+                                        <li class="mb-2"><span id="chkConnectionVerified"><span class="badge bg-secondary rounded-pill me-2" style="width: 65px;">Pending</span></span> Connection Verified</li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6 border-start">
@@ -687,33 +822,16 @@
                         </div>
                     </div>
 
-                    <!-- Configuration Form -->
-                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <!-- Google Drive Configuration (shown only when drive is selected) -->
+                    <div class="card border-0 shadow-sm rounded-4 p-4" id="driveConfigCard" class="hidden">
                         <h5 class="mb-4 fw-bold">Configure Google Drive</h5>
 
-                        <!-- Google Drive Configuration (always shown) -->
                         <div id="driveConfigSection">
                             
                             <!-- Step 1: Connect Google Account -->
                             <div class="mb-4">
                                 <h6 class="fw-bold">Step 1: Connect Google Account</h6>
                                 <p class="text-muted small mb-3">Sign in with your Google account to allow SPARSH to upload report cards to your Drive.</p>
-                                
-                                <div class="alert alert-info border-info border-opacity-25 bg-info bg-opacity-10 shadow-sm rounded-4 mb-3" role="alert">
-                                    <div class="d-flex">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-shield-lock-fill text-info me-3 flex-shrink-0" viewBox="0 0 16 16">
-                                            <path fill-rule="evenodd" d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.777 11.777 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.159 7.159 0 0 0 1.048-.625 11.775 11.775 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.541 1.541 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 .5 2.915l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99A1.5 1.5 0 0 1 8 5z"/>
-                                        </svg>
-                                        <div>
-                                            <h6 class="alert-heading fw-bold mb-1">Security Verification Required</h6>
-                                            <p class="mb-0 small text-dark">
-                                                For security reasons, SPARSH requires your Google Account to be pre-authorized before connecting. 
-                                                Please contact the development team at <strong class="text-primary">webapp.sparsh@gmail.com</strong> 
-                                                with the specific Gmail address you wish to use. You can only connect an account after it has been explicitly whitelisted.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
                                 
                                 <!-- Not Connected State -->
                                 <div id="googleNotConnected">
@@ -742,18 +860,44 @@
                             
                             <hr class="my-4">
 
-                            <!-- Step 2: Folder Verification -->
-                            <div class="mb-3" id="folderVerificationArea">
+                            <!-- Step 2: Folder Selection (scope-aware) -->
+                            <div class="mb-3" id="folderSelectionArea">
                                 <h6 class="fw-bold">Step 2: Select Drive Folder</h6>
-                                <p class="text-muted small mb-2">Paste the URL of the Google Drive folder where report cards should be stored.</p>
                                 
-                                <label class="form-label">Google Drive Folder URL</label>
-                                <input type="text" class="form-control" id="driveFolderUrl" placeholder="https://drive.google.com/drive/folders/xxxxxxxxxxxx" disabled>
+                                <!-- Picker-based flow (drive.file scope) -->
+                                <div id="pickerFlowArea" class="hidden">
+                                    <p class="text-muted small mb-3">Choose a folder from your Google Drive. SPARSH will store report cards there.</p>
+                                    <button type="button" class="btn btn-outline-primary d-flex align-items-center gap-2" id="btnOpenPicker">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-folder2-open" viewBox="0 0 16 16"><path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14V3.5zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5a.5.5 0 0 0-.5.5V6zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.367 7H1.633z"/></svg>
+                                        Select Folder from Drive
+                                    </button>
+                                    <!-- Selected folder display -->
+                                    <div id="pickerSelectedFolder" class="hidden mt-3">
+                                        <div class="card border-0 rounded-4 p-3" style="background: linear-gradient(135deg, #eff6ff, #ffffff);">
+                                            <div class="d-flex align-items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#2563eb" class="bi bi-folder-fill me-2" viewBox="0 0 16 16"><path d="M9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31L.5 3.5A2 2 0 0 1 2.5 2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3zm-8.322.12C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139z"/></svg>
+                                                <strong id="pickerFolderName" class="text-dark"></strong>
+                                                <button type="button" class="btn btn-sm btn-link ms-auto" id="btnChangePicker">Change</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Legacy URL-paste flow (drive scope) -->
+                                <div id="legacyUrlFlowArea" class="hidden">
+                                    <p class="text-muted small mb-2">Paste the URL of the Google Drive folder where report cards should be stored.</p>
+                                    <label class="form-label">Google Drive Folder URL</label>
+                                    <input type="text" class="form-control" id="driveFolderUrl" placeholder="https://drive.google.com/drive/folders/xxxxxxxxxxxx" disabled>
+                                </div>
                             </div>
 
-                            <div class="mb-3 d-flex gap-2">
-                                <button type="button" class="btn btn-outline-primary" id="btnVerifyFolder">Verify Folder</button>
+                            <!-- Action Buttons -->
+                            <div class="mb-3 d-flex gap-2" id="driveActionButtons">
+                                <!-- Legacy buttons (drive scope) -->
+                                <button type="button" class="btn btn-outline-primary hidden" id="btnVerifyFolder">Verify Folder</button>
                                 <button type="button" class="btn btn-outline-success hidden" id="btnTestUpload">Test Upload</button>
+                                <!-- Picker flow: Verify & Test button -->
+                                <button type="button" class="btn btn-outline-success hidden" id="btnVerifyAndTest">Verify &amp; Test Connection</button>
                             </div>
 
                             <!-- Verification Result Area -->
@@ -918,9 +1062,11 @@
     <script src="/js/api.js"></script>
     <script src="/js/dashboard.js"></script>
     <script src="/js/academic_years.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <script src="/js/storage_settings.js"></script>
     <script src="/js/import.js"></script>
     <script src="/js/reports.js"></script>
     <script src="/js/users.js"></script>
+    <script src="/js/marks_entry.js"></script>
 </body>
 </html>

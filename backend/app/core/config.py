@@ -27,13 +27,19 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     # --- Storage ---
-    STORAGE_PROVIDER: str = "google_drive"
+    STORAGE_PROVIDER: str = "local"
     FERNET_SECRET_KEY: str
+    REPORT_STORAGE_DIR: str = "./report_storage"
 
     # --- Google OAuth (Developer Setup) ---
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/settings/storage/oauth/callback"
+
+    # --- Google Picker API Key (separate from OAuth credentials) ---
+    # Created in Cloud Console → Credentials → API Key.
+    # Should be restricted to the Picker API and to your domain via HTTP referrer restrictions.
+    GOOGLE_PICKER_API_KEY: str = ""
 
     # --- Default Admin Seed ---
     DEFAULT_ADMIN_USERNAME: str = "admin"

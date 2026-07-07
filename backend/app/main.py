@@ -90,7 +90,7 @@ def health_check():
 # --- SPA Catch-All Routes ---
 # Serve dashboard.html for all clean page URLs.
 # This allows the frontend to handle routing via the History API.
-SPA_PAGES = ["home", "search", "import", "reports", "users", "academic-years", "storage-settings", "about"]
+SPA_PAGES = ["home", "search", "marks-entry", "import", "reports", "users", "academic-years", "storage-settings", "about"]
 
 
 @app.get("/{page_name}", include_in_schema=False)

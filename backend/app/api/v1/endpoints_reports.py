@@ -35,7 +35,7 @@ from app.models.user import User
 from app.models.student import Student
 from app.models.academic import AcademicYear
 from app.models.report import HistoricalReport
-from app.services.storage_service import get_storage_provider
+from app.services.storage_service import get_storage_provider, get_storage_provider_name
 from app.schemas.report_schema import (
     ReportResponse,
     SingleUploadResponse,
@@ -143,7 +143,7 @@ async def upload_single_report(
         admission_number=admission_number,
         academic_year_id=academic_year_id,
         uploaded_by=current_user.id,
-        storage_provider="GoogleDriveProvider",
+        storage_provider=get_storage_provider_name(),
         storage_key=actual_storage_key,
         original_filename=file.filename,
     )
@@ -234,7 +234,7 @@ async def upload_multiple_reports(
             admission_number=adm,
             academic_year_id=year.id,
             uploaded_by=current_user.id,
-            storage_provider="GoogleDriveProvider",
+            storage_provider=get_storage_provider_name(),
             storage_key=actual_storage_key,
             original_filename=filename,
         )
@@ -458,7 +458,7 @@ async def import_zip(
             admission_number=adm,
             academic_year_id=year.id,
             uploaded_by=current_user.id,
-            storage_provider="GoogleDriveProvider",
+            storage_provider=get_storage_provider_name(),
             storage_key=actual_storage_key,
             original_filename=basename,
         )

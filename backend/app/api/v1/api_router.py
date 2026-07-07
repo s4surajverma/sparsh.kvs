@@ -13,6 +13,7 @@ from app.api.v1.endpoints_students import router as students_router
 from app.api.v1.endpoints_results import router as results_router
 from app.api.v1.endpoints_reports import router as reports_router
 from app.api.v1.endpoints_dashboard import router as dashboard_router
+from app.api.v1.endpoints_marks import router as marks_router
 from app.api.v1.endpoints_templates import router as templates_router
 from app.api.v1.endpoints_users import router as users_router
 from app.api.v1.endpoints_settings import router as settings_router
@@ -24,6 +25,9 @@ api_router.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 
 # --- Dashboard & Retrieval ---
 api_router.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
+
+# --- Marks Entry ---
+api_router.include_router(marks_router, prefix="/marks", tags=["Marks Entry"])
 
 # --- Academic Structure Management ---
 api_router.include_router(academic_router, prefix="/academic", tags=["Academic Structure"])
