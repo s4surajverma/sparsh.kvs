@@ -75,6 +75,7 @@ token.json
 # Local storage artifacts (legacy)
 # ============================================
 backend/storage/
+backend/report_storage/
 
 # ============================================
 # Test / Scratch files

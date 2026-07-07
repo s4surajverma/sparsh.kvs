@@ -16,7 +16,7 @@ All endpoints are strictly protected and require the 'admin' role.
 
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_current_admin
@@ -24,6 +24,7 @@ from app.core.security import get_password_hash
 from app.models.user import User
 from app.schemas.user_schema import (
     UserResponse,
+    PaginatedUserResponse,
     UserCreateRequest,
     UserUpdateRequest,
     UserPasswordResetRequest,
@@ -60,13 +61,16 @@ def create_user(
     return new_user
 
 
-@router.get("/", response_model=List[UserResponse])
+@router.get("/", response_model=PaginatedUserResponse)
 def get_users(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=200),
     db: Session = Depends(get_db),
 ):
     """List all users."""
-    users = db.query(User).order_by(User.id).all()
-    return users
+    total = db.query(User).count()
+    users = db.query(User).order_by(User.id).offset(skip).limit(limit).all()
+    return {"total": total, "items": users}
 
 
 @router.get("/{user_id}", response_model=UserResponse)

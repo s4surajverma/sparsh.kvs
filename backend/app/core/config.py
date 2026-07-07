@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
+    ALLOWED_ORIGINS: str = ""
+    DEBUG: bool = False
 
     # --- Database ---
     DATABASE_URL: str
@@ -43,7 +45,7 @@ class Settings(BaseSettings):
 
     # --- Default Admin Seed ---
     DEFAULT_ADMIN_USERNAME: str = "admin"
-    DEFAULT_ADMIN_PASSWORD: str = "admin123"
+    DEFAULT_ADMIN_PASSWORD: str
     DEFAULT_ADMIN_FULLNAME: str = "System Administrator"
 
     model_config = SettingsConfigDict(

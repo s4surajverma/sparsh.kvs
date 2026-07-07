@@ -449,6 +449,13 @@ def disconnect_google_drive(
     row.google_oauth_refresh_token_encrypted = None
     row.google_user_email = None
     row.google_oauth_scope = None
+    
+    # Immediately remove the earlier selected/set folder when disconnected
+    row.drive_folder_id = None
+    row.drive_folder_name = None
+    row.last_verified_at = None
+    row.last_successful_upload_at = None
+
     row.updated_at = datetime.now(timezone.utc)
     db.commit()
 

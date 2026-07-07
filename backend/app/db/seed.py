@@ -41,7 +41,6 @@ SEED_CLASS_LEVELS = [
 SEED_EXAMS = [
     {"exam_name": "PT1", "display_order": 1},
     {"exam_name": "PT2", "display_order": 2},
-    {"exam_name": "PT3", "display_order": 3},
     {"exam_name": "Half Yearly", "display_order": 4},
     {"exam_name": "Annual", "display_order": 5},
     {"exam_name": "Pre Board", "display_order": 6},

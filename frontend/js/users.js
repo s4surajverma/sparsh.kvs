@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadUsers() {
         try {
             usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading users...</td></tr>';
-            const users = await apiClient.fetch('/users/');
-            renderUsersTable(users);
+            const payload = await apiClient.fetch('/users/');
+            renderUsersTable(payload.items);
         } catch (err) {
             showAlert('Failed to load users: ' + err.message);
             usersTableBody.innerHTML = '';

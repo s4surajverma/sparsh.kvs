@@ -25,6 +25,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // Hide section containers if all their child nav-items are hidden
+    document.querySelectorAll('.nav-section-container').forEach(container => {
+        const items = container.querySelectorAll('.nav-item:not(.nav-section-header)');
+        const anyVisible = Array.from(items).some(item => !item.classList.contains('hidden'));
+        if (!anyVisible) {
+            container.classList.add('hidden');
+        }
+    });
+
     // --- 3. View Navigation ---
     // Map of URL path segments to view IDs
     const validViews = ['home', 'search', 'marks-entry', 'import', 'reports', 'users', 'academic-years', 'storage-settings', 'about'];
@@ -117,6 +126,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 classSelect.appendChild(option);
             });
         }
+
+        // Admin-only Storage Status Check
+        if (userRole === 'admin') {
+            const storageStatusEl = document.getElementById('homeStorageStatus');
+            if (storageStatusEl) {
+                try {
+                    const storageInfo = await apiClient.fetch('/settings/storage');
+                    if (storageInfo.provider === 'local') {
+                        storageStatusEl.textContent = 'Local Storage';
+                        storageStatusEl.classList.add('text-secondary');
+                    } else if (storageInfo.provider === 'google_drive') {
+                        storageStatusEl.textContent = 'Google Drive';
+                        storageStatusEl.classList.add('text-success');
+                    } else {
+                        storageStatusEl.textContent = 'Unknown';
+                    }
+                } catch (e) {
+                    storageStatusEl.textContent = 'Error';
+                    storageStatusEl.classList.add('text-danger');
+                }
+            }
+        }
     } catch (e) {
         console.error("Failed to load initial data", e);
     }
@@ -155,12 +186,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     document.getElementById('studentIdentityProfile').classList.add('hidden');
                     document.getElementById('studentHistoricalReports').classList.add('hidden');
 
-                    if (payload.length === 0) {
+                    if (!payload.items || payload.items.length === 0) {
                         resultsContainer.innerHTML = '<div class="alert alert-warning">No students found for this class and section.</div>';
                     } else {
                         let tableHtml = `
                             <div class="section-card">
-                                <h5>Student List (${payload.length} found)</h5>
+                                <h5>Student List (Showing ${payload.items.length} of ${payload.total} results)</h5>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-hover result-table">
                                         <thead>
@@ -172,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            ${payload.map(student => `
+                                            ${payload.items.map(student => `
                                                 <tr>
                                                     <td>${student.roll_number || '-'}</td>
                                                     <td>${student.admission_number}</td>

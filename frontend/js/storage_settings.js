@@ -229,6 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 setCheckmark(chkFolderSelected, 'pending');
                 setCheckmark(chkConnectionVerified, 'pending');
+                folderUrlInput.value = '';
+                pickerSelectedFolder.classList.add('hidden');
+                pickerFolderName.textContent = '';
             }
 
             // History

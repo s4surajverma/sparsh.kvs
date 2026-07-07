@@ -1,12 +1,8 @@
 /**
  * SPARSH - Marks Entry Module
  *
- * Provides a spreadsheet-like grid for manually entering raw marks.
- * Flow:
- * 1. Select Class, Section, Exam → Load Students
- * 2. Grid renders with students as rows, subjects as columns
- * 3. Max Marks row at top, marks input cells pre-filled with existing data
- * 4. Save All Marks → batch POST to /marks/save
+ * Provides a grid for manually entering raw marks.
+ * Supports 'By Subject' (single column) and 'Spreadsheet' (multi-column) views.
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -15,7 +11,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- State ---
     let currentYearId = null;
-    let loadedData = null; // MarksLoadResponse from backend
+    let loadedData = null; 
+    let currentMode = 'subject'; // 'subject' or 'spreadsheet'
+    let activeSubjectId = null;
+    let unsavedChanges = false;
+    
+    // Model to persist data across tab switches and UI re-renders
+    // marksModel[admission_number][subject_id] = marks_value
+    let marksModel = {}; 
+    let maxMarksModel = {}; // subjectId -> max_marks value
 
     // --- DOM Elements ---
     const marksClass = document.getElementById('marksClass');
@@ -23,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const gridContainer = document.getElementById('marksGridContainer');
     const thead = document.getElementById('marksTableHead');
     const tbody = document.getElementById('marksTableBody');
+    const modeRadios = document.querySelectorAll('input[name="entryMode"]');
+    const tabsContainer = document.getElementById('subjectTabsContainer');
+    const progressInfo = document.getElementById('marksProgressInfo');
 
     // --- Helpers ---
     function showMarksAlert(msg, type = 'danger') {
@@ -34,10 +41,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>`;
     }
 
+    // --- Unsaved Changes Handling ---
+    window.addEventListener('beforeunload', (e) => {
+        if (unsavedChanges) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            return e.returnValue;
+        }
+    });
+
     // --- Initialize Dropdowns ---
     async function initMarksData() {
         try {
-            // Academic Year (read-only, current year)
             const years = await apiClient.fetch('/academic/years');
             const current = years.find(y => y.is_current);
             if (current) {
@@ -47,7 +62,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('marksYearDisplay').value = 'No active year configured';
             }
 
-            // Classes
             const classes = await apiClient.fetch('/academic/classes');
             marksClass.innerHTML = '';
             classes.forEach(c => {
@@ -57,7 +71,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 marksClass.appendChild(opt);
             });
 
-            // Exams
             const exams = await apiClient.fetch('/academic/exams');
             marksExam.innerHTML = '';
             exams.forEach(e => {
@@ -74,13 +87,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     initMarksData();
 
+    // --- Mode Toggle Logic ---
+    modeRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            currentMode = e.target.value;
+            if (loadedData) {
+                renderGrid(loadedData);
+            }
+        });
+    });
 
     // ============================================
     // Load Students
     // ============================================
-
     document.getElementById('marksLoadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        if (unsavedChanges) {
+            if (!confirm('You have unsaved marks. If you load a new class, those changes will be lost. Continue?')) {
+                return;
+            }
+        }
 
         if (!currentYearId) {
             showMarksAlert('No active academic year is configured.');
@@ -109,10 +136,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
 
             loadedData = data;
+            unsavedChanges = false;
+            
+            // Initialize Models
+            marksModel = {};
+            maxMarksModel = {};
+            data.subjects.forEach(sub => {
+                maxMarksModel[sub.id] = '';
+                // Attempt to find existing max marks
+                for (const student of data.students) {
+                    const res = student.results.find(r => r.subject_id === sub.id);
+                    if (res && res.max_marks !== null && res.max_marks !== undefined) {
+                        maxMarksModel[sub.id] = res.max_marks;
+                        break;
+                    }
+                }
+            });
+
+            data.students.forEach(student => {
+                marksModel[student.admission_number] = {};
+                student.results.forEach(r => {
+                    marksModel[student.admission_number][r.subject_id] = (r.marks_obtained !== null && r.marks_obtained !== undefined) ? r.marks_obtained : '';
+                });
+            });
+
+            if (data.subjects.length > 0) {
+                activeSubjectId = data.subjects[0].id;
+            }
+
             renderGrid(data);
             gridContainer.classList.remove('hidden');
 
-            // Update info badges
             document.getElementById('marksGridInfo').textContent =
                 `${data.class_name} - ${data.section} | ${data.students.length} Students`;
             document.getElementById('marksGridExamInfo').textContent =
@@ -126,44 +180,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-
     // ============================================
-    // Render Spreadsheet Grid
+    // Render Grid
     // ============================================
-
     function renderGrid(data) {
+        if (!data || data.subjects.length === 0) return;
+
         const subjects = data.subjects;
         const students = data.students;
 
+        // Render Tabs
+        if (currentMode === 'subject') {
+            tabsContainer.classList.remove('hidden');
+            progressInfo.classList.remove('hidden');
+            let tabsHtml = '';
+            subjects.forEach(sub => {
+                const isActive = sub.id === activeSubjectId ? 'active' : '';
+                tabsHtml += `<div class="subject-tab ${isActive}" data-subject-id="${sub.id}">${sub.subject_name}</div>`;
+            });
+            tabsContainer.innerHTML = tabsHtml;
+            
+            // Tab click events
+            tabsContainer.querySelectorAll('.subject-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    activeSubjectId = parseInt(e.target.dataset.subjectId);
+                    renderGrid(data); // Re-render table for the new subject
+                });
+            });
+        } else {
+            tabsContainer.classList.add('hidden');
+            progressInfo.classList.add('hidden');
+        }
+
+        const visibleSubjects = currentMode === 'subject' 
+            ? subjects.filter(s => s.id === activeSubjectId) 
+            : subjects;
+
         // --- Build Header Row ---
         let headerHtml = '<tr>';
-        headerHtml += '<th style="position: sticky; left: 0; z-index: 3; background: #f8f9fa; min-width: 60px;">Roll</th>';
-        headerHtml += '<th style="position: sticky; left: 60px; z-index: 3; background: #f8f9fa; min-width: 180px;">Student Name</th>';
+        headerHtml += '<th class="col-roll" style="position: sticky; left: 0; z-index: 3; background: #f8f9fa; min-width: 60px;">Roll</th>';
+        headerHtml += '<th class="col-name" style="position: sticky; z-index: 3; background: #f8f9fa; min-width: 180px;">Student Name</th>';
 
-        subjects.forEach(sub => {
+        visibleSubjects.forEach(sub => {
             headerHtml += `<th class="text-center" style="min-width: 100px;">${sub.subject_name}</th>`;
         });
         headerHtml += '</tr>';
 
         // --- Build Max Marks Row ---
         let maxMarksHtml = '<tr class="table-warning">';
-        maxMarksHtml += '<td style="position: sticky; left: 0; z-index: 1; background: #fff3cd;" colspan="2" class="fw-bold text-end">Max Marks →</td>';
+        maxMarksHtml += '<td class="col-roll" style="position: sticky; left: 0; z-index: 1; background: #fff3cd;" colspan="1"></td>';
+        maxMarksHtml += '<td class="col-name fw-bold text-end" style="position: sticky; z-index: 1; background: #fff3cd;">Max Marks &rarr;</td>';
 
-        subjects.forEach(sub => {
-            // Try to get existing max marks from any student's result for this subject
-            let existingMax = '';
-            for (const student of students) {
-                const result = student.results.find(r => r.subject_id === sub.id);
-                if (result && result.max_marks !== null && result.max_marks !== undefined) {
-                    existingMax = result.max_marks;
-                    break;
-                }
-            }
-
+        visibleSubjects.forEach(sub => {
+            const val = maxMarksModel[sub.id] !== undefined ? maxMarksModel[sub.id] : '';
             maxMarksHtml += `<td class="text-center">
                 <input type="number" class="form-control form-control-sm text-center max-marks-input"
                     data-subject-id="${sub.id}"
-                    value="${existingMax}"
+                    value="${val}"
                     min="0" max="999" step="any"
                     placeholder="—"
                     style="width: 80px; margin: 0 auto;">
@@ -175,53 +248,163 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // --- Build Student Rows ---
         let bodyHtml = '';
-        students.forEach((student, idx) => {
-            // Build results lookup for this student
-            const resultsMap = {};
-            student.results.forEach(r => {
-                resultsMap[r.subject_id] = r;
-            });
-
-            bodyHtml += `<tr data-admission="${student.admission_number}" data-enrollment-id="${student.enrollment_id}">`;
-            bodyHtml += `<td style="position: sticky; left: 0; z-index: 1; background: #fff;" class="fw-bold text-center">${student.roll_number}</td>`;
-            bodyHtml += `<td style="position: sticky; left: 60px; z-index: 1; background: #fff;">
+        students.forEach((student) => {
+            bodyHtml += `<tr data-admission="${student.admission_number}">`;
+            bodyHtml += `<td class="col-roll fw-bold text-center" style="position: sticky; left: 0; z-index: 1; background: #fff;">${student.roll_number}</td>`;
+            bodyHtml += `<td class="col-name" style="position: sticky; z-index: 1; background: #fff;">
                 <span class="fw-bold">${student.student_name}</span>
                 <br><small class="text-muted">${student.admission_number}</small>
             </td>`;
 
-            subjects.forEach(sub => {
-                const existing = resultsMap[sub.id];
-                const marksValue = existing && existing.marks_obtained !== null && existing.marks_obtained !== undefined
-                    ? existing.marks_obtained : '';
-
+            visibleSubjects.forEach(sub => {
+                const val = (marksModel[student.admission_number] && marksModel[student.admission_number][sub.id] !== undefined) 
+                            ? marksModel[student.admission_number][sub.id] : '';
                 bodyHtml += `<td class="text-center p-1">
                     <input type="number" class="form-control form-control-sm text-center marks-input"
                         data-admission="${student.admission_number}"
                         data-subject-id="${sub.id}"
-                        value="${marksValue}"
+                        value="${val}"
                         min="0" max="999" step="any"
                         placeholder="—"
                         style="width: 80px; margin: 0 auto;">
                 </td>`;
             });
-
             bodyHtml += '</tr>';
         });
 
         tbody.innerHTML = bodyHtml;
 
-        // --- Tab navigation between cells ---
-        setupGridNavigation();
+        // Determine Name column sticky offset dynamically
+        setTimeout(() => {
+            const rollHeaders = document.querySelectorAll('.col-roll');
+            const nameHeaders = document.querySelectorAll('.col-name');
+            if (rollHeaders.length > 0 && nameHeaders.length > 0) {
+                const rollWidth = rollHeaders[0].getBoundingClientRect().width;
+                nameHeaders.forEach(el => {
+                    el.style.left = `${rollWidth}px`;
+                });
+            }
+        }, 0);
+
+        setupEventListeners();
+        updateProgress();
     }
 
-
     // ============================================
-    // Grid Navigation (Arrow keys / Tab / Enter)
+    // Logic: Progress & Validation
     // ============================================
+    function updateProgress() {
+        if (currentMode !== 'subject' || !activeSubjectId || !loadedData) return;
+        let enteredCount = 0;
+        let totalCount = loadedData.students.length;
 
-    function setupGridNavigation() {
+        loadedData.students.forEach(student => {
+            const val = marksModel[student.admission_number]?.[activeSubjectId];
+            // Valid if non-empty, and >= 0
+            if (val !== '' && val !== undefined && val !== null && parseFloat(val) >= 0) {
+                enteredCount++;
+            }
+        });
+        progressInfo.textContent = `Marks entered: ${enteredCount}/${totalCount}`;
+    }
+
+    function validateInput(input) {
+        if (input.classList.contains('max-marks-input')) return; // handled separately
+
+        const val = input.value.trim();
+        const subjectId = parseInt(input.dataset.subjectId);
+        
+        // Block negative numbers
+        if (val !== '' && parseFloat(val) < 0) {
+            input.value = '0';
+        }
+
+        const maxMarks = parseFloat(maxMarksModel[subjectId]);
+        const currentVal = parseFloat(input.value);
+
+        if (!isNaN(currentVal) && !isNaN(maxMarks) && currentVal > maxMarks) {
+            input.classList.add('mark-warning');
+        } else {
+            input.classList.remove('mark-warning');
+        }
+    }
+
+    function setupEventListeners() {
         const table = document.getElementById('marksTable');
+        
+        // Input Syncing & Validation
+        table.querySelectorAll('input').forEach(input => {
+            // Live validation and state sync on input
+            input.addEventListener('input', (e) => {
+                unsavedChanges = true;
+                const target = e.target;
+                const subjectId = parseInt(target.dataset.subjectId);
+                const val = target.value;
 
+                if (target.classList.contains('max-marks-input')) {
+                    maxMarksModel[subjectId] = val;
+                    // Revalidate all inputs in this subject
+                    table.querySelectorAll(`.marks-input[data-subject-id="${subjectId}"]`).forEach(validateInput);
+                } else {
+                    const admNo = target.dataset.admission;
+                    if (!marksModel[admNo]) marksModel[admNo] = {};
+                    
+                    // Prevent non-numeric chars (though type="number" helps, manual typing can sneak things in)
+                    if (val !== '' && parseFloat(val) < 0) {
+                        target.value = 0;
+                        marksModel[admNo][subjectId] = '0';
+                    } else {
+                        marksModel[admNo][subjectId] = val;
+                    }
+                    
+                    validateInput(target);
+                    updateProgress();
+                }
+            });
+
+            // Trigger initial validation
+            validateInput(input);
+        });
+
+        // Hover & Focus Highlighting
+        table.addEventListener('mouseover', handleHighlight);
+        table.addEventListener('mouseout', removeHighlight);
+        table.addEventListener('focusin', handleHighlight);
+        table.addEventListener('focusout', removeHighlight);
+
+        function handleHighlight(e) {
+            let target = e.target;
+            // For focusin, the target is the input. We want to highlight based on the TD.
+            if (target.tagName === 'INPUT') {
+                target = target.closest('td');
+            }
+            if (!target || target.tagName !== 'TD') return;
+            
+            removeHighlight(); // clear previous
+            
+            const tr = target.closest('tr');
+            if (tr) {
+                tr.querySelectorAll('td').forEach(td => td.classList.add('marks-cell-active'));
+            }
+            
+            const cellIndex = Array.from(tr.cells).indexOf(target);
+            if (cellIndex >= 0) {
+                const headerCell = thead.querySelectorAll('tr:first-child th')[cellIndex];
+                if (headerCell) headerCell.classList.add('marks-header-active');
+            }
+            
+            // Auto-select text on focusin
+            if (e.type === 'focusin' && e.target.tagName === 'INPUT') {
+                e.target.select();
+            }
+        }
+
+        function removeHighlight() {
+            table.querySelectorAll('.marks-cell-active').forEach(el => el.classList.remove('marks-cell-active'));
+            table.querySelectorAll('.marks-header-active').forEach(el => el.classList.remove('marks-header-active'));
+        }
+
+        // Keyboard Navigation (Arrow keys / Enter / Tab)
         table.addEventListener('keydown', (e) => {
             const target = e.target;
             if (!target.classList.contains('marks-input') && !target.classList.contains('max-marks-input')) return;
@@ -234,10 +417,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (e.key === 'Enter' || e.key === 'ArrowDown') {
                 e.preventDefault();
-                // Move down
                 const nextRow = row.nextElementSibling;
                 if (nextRow) {
                     targetInput = nextRow.cells[cellIndex]?.querySelector('input');
+                } else if (currentMode === 'subject') {
+                    // Reached the bottom in By Subject mode. Advance to next subject.
+                    autoAdvanceSubject();
                 }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
@@ -247,7 +432,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } else if (e.key === 'ArrowRight' && target.selectionStart === target.value.length) {
                 e.preventDefault();
-                // Move right
                 const nextCell = cell.nextElementSibling;
                 if (nextCell) {
                     targetInput = nextCell.querySelector('input');
@@ -262,39 +446,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (targetInput) {
                 targetInput.focus();
-                targetInput.select();
-            }
-        });
-
-        // Auto-select content on focus
-        table.addEventListener('focusin', (e) => {
-            if (e.target.matches('input[type="number"]')) {
-                e.target.select();
             }
         });
     }
 
+    function autoAdvanceSubject() {
+        if (!loadedData || !activeSubjectId) return;
+        const subjects = loadedData.subjects;
+        const currentIndex = subjects.findIndex(s => s.id === activeSubjectId);
+        
+        if (currentIndex >= 0 && currentIndex < subjects.length - 1) {
+            activeSubjectId = subjects[currentIndex + 1].id;
+            renderGrid(loadedData);
+            
+            // Focus first input of the new subject
+            setTimeout(() => {
+                const firstInput = document.querySelector('.marks-input');
+                if (firstInput) firstInput.focus();
+            }, 50);
+        }
+    }
 
     // ============================================
     // Clear All Marks
     // ============================================
-
     document.getElementById('btnClearGrid').addEventListener('click', () => {
         if (!confirm('Clear all entered marks? This will not delete saved data — only clears the form.')) return;
+        
+        unsavedChanges = true;
+        // Clear models
+        for (let adm in marksModel) {
+            for (let sub in marksModel[adm]) {
+                marksModel[adm][sub] = '';
+            }
+        }
+        for (let sub in maxMarksModel) {
+            maxMarksModel[sub] = '';
+        }
 
-        document.querySelectorAll('.marks-input').forEach(input => {
-            input.value = '';
-        });
-        document.querySelectorAll('.max-marks-input').forEach(input => {
-            input.value = '';
-        });
+        renderGrid(loadedData);
     });
-
 
     // ============================================
     // Save All Marks
     // ============================================
-
     document.getElementById('btnSaveMarks').addEventListener('click', async () => {
         if (!loadedData) return;
 
@@ -305,66 +500,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('marksSaveResult').classList.add('hidden');
 
         try {
-            // Collect max marks
+            // Rebuild maxMarks array
             const maxMarks = [];
-            document.querySelectorAll('.max-marks-input').forEach(input => {
-                const val = input.value.trim();
-                if (val !== '') {
+            for (const subId in maxMarksModel) {
+                const val = maxMarksModel[subId];
+                if (val !== '' && val !== null) {
                     maxMarks.push({
-                        subject_id: parseInt(input.dataset.subjectId),
-                        max_marks: parseFloat(val),
+                        subject_id: parseInt(subId),
+                        max_marks: parseFloat(val)
                     });
                 }
-            });
-
-            // Collect student marks grouped by admission number
-            const entriesMap = {};
-            document.querySelectorAll('.marks-input').forEach(input => {
-                const admNo = input.dataset.admission;
-                const subjectId = parseInt(input.dataset.subjectId);
-                const val = input.value.trim();
-
-                if (!entriesMap[admNo]) {
-                    entriesMap[admNo] = {
-                        admission_number: admNo,
-                        results: [],
-                    };
-                }
-
-                if (val !== '') {
-                    entriesMap[admNo].results.push({
-                        subject_id: subjectId,
-                        marks_obtained: parseFloat(val),
-                        grade: null,
-                    });
-                }
-            });
-
-            // Filter out students with no marks entered
-            const entries = Object.values(entriesMap).filter(e => e.results.length > 0);
-
-            if (entries.length === 0) {
-                showMarksAlert('No marks entered. Please fill in at least one cell.', 'warning');
-                return;
             }
 
-            // Validate marks against max marks
-            const maxMarksMap = {};
-            maxMarks.forEach(mm => maxMarksMap[mm.subject_id] = mm.max_marks);
-
-            for (const entry of entries) {
-                for (const result of entry.results) {
-                    const max = maxMarksMap[result.subject_id];
-                    if (max !== undefined && result.marks_obtained > max) {
-                        // Find the subject name
-                        const subjectName = loadedData.subjects.find(s => s.id === result.subject_id)?.subject_name || result.subject_id;
-                        showMarksAlert(
-                            `Marks for <strong>${entry.admission_number}</strong> in <strong>${subjectName}</strong> (${result.marks_obtained}) exceed max marks (${max}).`,
-                            'danger'
-                        );
-                        return;
+            // Rebuild entries payload
+            const entries = [];
+            for (const admNo in marksModel) {
+                const results = [];
+                for (const subId in marksModel[admNo]) {
+                    const val = marksModel[admNo][subId];
+                    if (val !== '' && val !== null) {
+                        results.push({
+                            subject_id: parseInt(subId),
+                            marks_obtained: parseFloat(val),
+                            grade: null
+                        });
                     }
                 }
+                if (results.length > 0) {
+                    entries.push({
+                        admission_number: admNo,
+                        results: results
+                    });
+                }
+            }
+
+            if (entries.length === 0 && maxMarks.length === 0) {
+                showMarksAlert('No marks entered to save.', 'warning');
+                return;
             }
 
             const payload = {
@@ -380,6 +552,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify(payload),
             });
 
+            unsavedChanges = false;
+            
             // Show success
             const resultArea = document.getElementById('marksSaveResult');
             resultArea.classList.remove('hidden');
@@ -392,19 +566,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <strong>Marks saved successfully!</strong>
                         <span class="ms-2">${response.saved_count} result(s) saved</span>
                         <span class="ms-1 text-muted">(${response.created_count} new, ${response.updated_count} updated)</span>
-                        ${response.errors.length > 0 ? `<br><small class="text-danger">${response.errors.length} error(s): ${response.errors.join('; ')}</small>` : ''}
+                        ${response.errors && response.errors.length > 0 ? `<br><small class="text-danger">${response.errors.length} error(s): ${response.errors.join('; ')}</small>` : ''}
                     </div>
                 </div>
             `;
 
-            // Briefly flash saved cells
+            // Flash success
             document.querySelectorAll('.marks-input').forEach(input => {
                 if (input.value.trim() !== '') {
                     input.style.transition = 'background-color 0.3s ease';
                     input.style.backgroundColor = '#d4edda';
-                    setTimeout(() => {
-                        input.style.backgroundColor = '';
-                    }, 1500);
+                    setTimeout(() => input.style.backgroundColor = '', 1500);
                 }
             });
 

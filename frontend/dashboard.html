@@ -10,8 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Custom CSS -->
-    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/style.css?v=2" rel="stylesheet">
 </head>
 <body>
 
@@ -54,64 +56,97 @@
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 <div class="sidebar-sticky pt-3">
                     <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/home" data-view="home">
-                                Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/search" data-view="search">
-                                Student Search
-                            </a>
-                        </li>
-                        <!-- Role-restricted items -->
-                        <li class="nav-item role-admin role-teacher hidden">
-                            <a class="nav-link" href="/marks-entry" data-view="marks-entry">
-                                Marks Entry
-                            </a>
-                        </li>
-                        <li class="nav-item role-admin role-teacher hidden">
-                            <a class="nav-link" href="/import" data-view="import">
-                                Excel Import
-                            </a>
-                        </li>
-                        <li class="nav-item role-admin role-teacher hidden">
-                            <a class="nav-link" href="/reports" data-view="reports">
-                                Previous Years' Report Cards
-                            </a>
-                        </li>
                         
-                        <!-- Admin Settings Group -->
-                        <li class="nav-item role-admin hidden mt-3">
-                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                                <span>Admin Settings</span>
+                        <!-- OVERVIEW -->
+                        <li class="nav-section-container nav-section-overview">
+                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted nav-section-header">
+                                <span>Overview</span>
                             </h6>
                             <ul class="nav flex-column mb-2">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/users" data-view="users">
-                                        User Management
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/academic-years" data-view="academic-years">
-                                        Academic Years
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/storage-settings" data-view="storage-settings">
-                                        Storage Settings
+                                    <a class="nav-link active" href="/home" data-view="home">
+                                        <i class="bi bi-house-door me-2"></i> Home
                                     </a>
                                 </li>
                             </ul>
+                        </li>
+
+                        <!-- DATA ENTRY -->
+                        <li class="nav-section-container nav-section-data">
+                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted nav-section-header">
+                                <span>Data Entry</span>
+                            </h6>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item role-admin role-teacher hidden">
+                                    <a class="nav-link" href="/marks-entry" data-view="marks-entry">
+                                        <i class="bi bi-pencil-square me-2"></i> Marks Entry
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin role-teacher hidden">
+                                    <a class="nav-link" href="/import" data-view="import">
+                                        <i class="bi bi-file-earmark-spreadsheet me-2"></i> Excel Import
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- RECORDS & REPORTS -->
+                        <li class="nav-section-container nav-section-reports">
+                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted nav-section-header">
+                                <span>Records & Reports</span>
+                            </h6>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/search" data-view="search">
+                                        <i class="bi bi-search me-2"></i> Student Search
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin role-teacher role-principal hidden">
+                                    <a class="nav-link" href="/reports" data-view="reports">
+                                        <i class="bi bi-journal-bookmark me-2"></i> Previous Years' Report Cards
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         
-                        <!-- Global Footer Items -->
-                        <li class="nav-item mt-2 border-top pt-2">
-                            <a class="nav-link" href="/about" data-view="about">
-                                About
-                            </a>
+                        <!-- ADMINISTRATION -->
+                        <li class="nav-section-container nav-section-admin">
+                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted nav-section-header">
+                                <span>Administration</span>
+                            </h6>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/users" data-view="users">
+                                        <i class="bi bi-people me-2"></i> User Management
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/academic-years" data-view="academic-years">
+                                        <i class="bi bi-calendar3 me-2"></i> Academic Years
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/storage-settings" data-view="storage-settings">
+                                        <i class="bi bi-hdd me-2"></i> Storage Settings
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
+                        
+                        <!-- HELP -->
+                        <li class="nav-section-container nav-section-help border-top mt-2 pt-2">
+                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-1 text-muted nav-section-header">
+                                <span>Help</span>
+                            </h6>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/about" data-view="about">
+                                        <i class="bi bi-info-circle me-2"></i> About
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
                     </ul>
                 </div>
             </nav>
@@ -121,16 +156,20 @@
                 
                 <!-- View: Home -->
                 <div id="view-home" class="view-section">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
-                        <h1 class="h2 fw-bold text-dark">Dashboard Overview</h1>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-house-door me-2 text-primary"></i> Dashboard Overview</h1>
+                            <p class="text-muted small mb-0 mt-1">Welcome to SPARSH Student Progress Tracker</p>
+                        </div>
                     </div>
                     
                     <div class="row g-4 mb-4">
+                        <!-- Global Cards (Always Visible) -->
                         <div class="col-md-6 col-lg-4">
                             <div class="card border-0 shadow-sm rounded-4 h-100 p-4" style="background: linear-gradient(135deg, var(--primary-light), #ffffff);">
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                        <svg xmlns="http://www.w3.org/-2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        <i class="bi bi-person-badge fs-4"></i>
                                     </div>
                                     <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 0.05em;">Current User</h6>
                                 </div>
@@ -140,10 +179,10 @@
                         </div>
                         
                         <div class="col-md-6 col-lg-4">
-                            <div class="card border-0 shadow-sm rounded-4 h-100 p-4" style="background: linear-gradient(135deg, #e0f2fe, #ffffff);">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 p-4" style="background: linear-gradient(135deg, var(--info-light), #ffffff);">
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="bg-info text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                        <svg xmlns="http://www.w3.org/-2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                        <i class="bi bi-calendar-check fs-4"></i>
                                     </div>
                                     <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 0.05em;">Active Term</h6>
                                 </div>
@@ -151,15 +190,59 @@
                                 <p class="text-muted small mb-0">Academic Year</p>
                             </div>
                         </div>
+
+                        <!-- Admin-Only Cards -->
+                        <div class="col-md-6 col-lg-4 role-admin hidden">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 p-4" style="background: linear-gradient(135deg, var(--secondary-light), #ffffff);">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-secondary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                        <i class="bi bi-hdd-network fs-4"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 0.05em;">Storage Status</h6>
+                                </div>
+                                <h3 class="fw-bold mb-1 fs-5" id="homeStorageStatus" style="color: var(--text-main);">Checking...</h3>
+                                <p class="text-muted small mb-0">Current Provider</p>
+                            </div>
+                        </div>
+
+                        <!-- Teacher & Admin Quick Actions -->
+                        <div class="col-md-6 col-lg-4 role-admin role-teacher hidden">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 cursor-pointer hover-shadow action-card" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'marks-entry\']').click();">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-success text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                        <i class="bi bi-pencil-square fs-4"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 0.05em;">Quick Action</h6>
+                                </div>
+                                <h3 class="fw-bold mb-1 fs-4" style="color: var(--text-main);">Enter Marks</h3>
+                                <p class="text-muted small mb-0">Record student progress</p>
+                            </div>
+                        </div>
+
+                        <!-- Global Quick Action -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 cursor-pointer hover-shadow action-card" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'search\']').click();">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-warning text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                        <i class="bi bi-search fs-4"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 0.05em;">Quick Action</h6>
+                                </div>
+                                <h3 class="fw-bold mb-1 fs-4" style="color: var(--text-main);">Student Search</h3>
+                                <p class="text-muted small mb-0">View profiles & reports</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- View: User Management -->
                 <div id="view-users" class="view-section hidden">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">User Management</h1>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                         <div>
-                            <a href="/home" class="btn btn-outline-secondary me-2" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-people me-2 text-primary"></i> User Management</h1>
+                            <p class="text-muted small mb-0 mt-1">Manage system users and access roles</p>
+                        </div>
+                        <div class="view-actions">
                             <button class="btn btn-primary" id="btnNewUser" data-bs-toggle="modal" data-bs-target="#userModal">Add New User</button>
                         </div>
                     </div>
@@ -184,10 +267,12 @@
 
                 <!-- View: Academic Years -->
                 <div id="view-academic-years" class="view-section hidden">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Academic Years</h1>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                         <div>
-                            <a href="/home" class="btn btn-outline-secondary me-2" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-calendar3 me-2 text-primary"></i> Academic Years</h1>
+                            <p class="text-muted small mb-0 mt-1">Configure academic terms and active sessions</p>
+                        </div>
+                        <div class="view-actions">
                             <button class="btn btn-primary" id="btnNewYear" data-bs-toggle="modal" data-bs-target="#yearModal">Add New Year</button>
                         </div>
                     </div>
@@ -210,9 +295,12 @@
 
                 <!-- View: About -->
                 <div id="view-about" class="view-section hidden">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
-                        <h1 class="h2">About</h1>
-                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-info-circle me-2 text-primary"></i> About</h1>
+                            <p class="text-muted small mb-0 mt-1">System information and credits</p>
+                        </div>
+                        <div class="view-actions"></div>
                     </div>
                     
                     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background: linear-gradient(135deg, #f3e8ff, #ffffff);">
@@ -273,9 +361,12 @@
 
                 <!-- View: Student Search -->
                 <div id="view-search" class="view-section hidden">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Student Search</h1>
-                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-search me-2 text-primary"></i> Student Search</h1>
+                            <p class="text-muted small mb-0 mt-1">Find students and view report cards</p>
+                        </div>
+                        <div class="view-actions"></div>
                     </div>
 
                     <!-- Search Form -->
@@ -342,9 +433,12 @@
 
                 <!-- View: Marks Entry -->
                 <div id="view-marks-entry" class="view-section hidden">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Marks Entry</h1>
-                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-pencil-square me-2 text-primary"></i> Marks Entry</h1>
+                            <p class="text-muted small mb-0 mt-1">Record student progress</p>
+                        </div>
+                        <div class="view-actions"></div>
                     </div>
 
                     <div id="marksAlertArea"></div>
@@ -376,22 +470,37 @@
 
                     <!-- Marks Grid -->
                     <div id="marksGridContainer" class="hidden mt-4">
-                        <!-- Grid Info Bar -->
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <span class="badge bg-primary fs-6 me-2" id="marksGridInfo"></span>
+                        
+                        <!-- Mode Toggle & Info Bar -->
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                <span class="badge bg-primary fs-6" id="marksGridInfo"></span>
                                 <span class="badge bg-info fs-6" id="marksGridExamInfo"></span>
+                                <span class="badge bg-secondary fs-6 hidden" id="marksProgressInfo">Marks entered: 0/0</span>
                             </div>
-                            <div>
-                                <button type="button" class="btn btn-outline-secondary me-2" id="btnClearGrid">
+                            
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="btn-group" role="group" aria-label="Entry Mode Toggle">
+                                    <input type="radio" class="btn-check" name="entryMode" id="modeSubject" autocomplete="off" value="subject" checked>
+                                    <label class="btn btn-outline-primary" for="modeSubject">By Subject</label>
+                                  
+                                    <input type="radio" class="btn-check" name="entryMode" id="modeSpreadsheet" autocomplete="off" value="spreadsheet">
+                                    <label class="btn btn-outline-primary" for="modeSpreadsheet">Spreadsheet View</label>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary" id="btnClearGrid">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eraser me-1" viewBox="0 0 16 16"><path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414l-3.879-3.879zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"/></svg>
                                     Clear All
                                 </button>
-                                <button type="button" class="btn btn-success btn-lg" id="btnSaveMarks">
+                                <button type="button" class="btn btn-success" id="btnSaveMarks">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check2-circle me-1" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg>
                                     Save All Marks
                                 </button>
                             </div>
+                        </div>
+
+                        <!-- Subject Tabs (Only visible in 'subject' mode) -->
+                        <div id="subjectTabsContainer" class="d-flex flex-wrap border-bottom mb-3">
+                            <!-- Populated dynamically -->
                         </div>
 
                         <!-- Scrollable Table -->
@@ -413,9 +522,12 @@
 
                 <!-- View: Import -->
                 <div id="view-import" class="view-section hidden">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Excel Result Import</h1>
-                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-file-earmark-spreadsheet me-2 text-primary"></i> Excel Result Import</h1>
+                            <p class="text-muted small mb-0 mt-1">Batch import student data from Excel</p>
+                        </div>
+                        <div class="view-actions"></div>
                     </div>
 
                     <div id="importAlertArea"></div>
@@ -651,9 +763,12 @@
 
                 <!-- View: Reports -->
                 <div id="view-reports" class="view-section hidden">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Previous Years' Report Cards</h1>
-                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-journal-bookmark me-2 text-primary"></i> Previous Years' Report Cards</h1>
+                            <p class="text-muted small mb-0 mt-1">Access archived reports</p>
+                        </div>
+                        <div class="view-actions"></div>
                     </div>
 
                     <!-- Tabs -->
@@ -696,7 +811,13 @@
                         <div class="tab-pane fade" id="bulk-upload" role="tabpanel">
                             <div class="section-card" id="bulkStep1">
                                 <h5>Upload ZIP Archive</h5>
-                                <p class="text-muted small">ZIP file must contain PDFs named as: <code>AdmissionNumber_AcademicYear.pdf</code> (e.g. <code>2024001_2023-2024.pdf</code>)</p>
+                                <div class="alert alert-info border-info border-opacity-25 bg-info bg-opacity-10 d-flex align-items-center mt-3 mb-4 rounded-3" role="alert">
+                                    <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+                                    <div>
+                                        <h6 class="alert-heading fw-bold mb-1 text-dark">Important File Naming Convention</h6>
+                                        <p class="mb-0 small text-dark">The ZIP archive must contain PDFs strictly named as: <code class="fw-bold bg-white px-2 py-1 rounded mx-1 text-primary shadow-sm border">AdmissionNumber_AcademicYear.pdf</code> <br><span class="text-muted mt-1 d-inline-block">Example:</span> <code class="text-secondary bg-white px-1 rounded border">2024001_2023-2024.pdf</code></p>
+                                    </div>
+                                </div>
                                 <form id="bulkReportForm" class="row g-3">
                                     <div class="col-md-8">
                                         <input class="form-control" type="file" id="bulkZipFile" accept=".zip" required>
@@ -741,9 +862,12 @@
 
                 <!-- View: Storage Settings -->
                 <div id="view-storage-settings" class="view-section hidden">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2 fw-bold text-dark">Storage Settings</h1>
-                        <a href="/home" class="btn btn-outline-secondary" onclick="document.querySelector('#sidebarMenu .nav-link[data-view=\'home\']').click(); return false;">Back to Home</a>
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-hdd me-2 text-primary"></i> Storage Settings</h1>
+                            <p class="text-muted small mb-0 mt-1">Configure where files are saved</p>
+                        </div>
+                        <div class="view-actions"></div>
                     </div>
 
                     <div id="storageAlertArea"></div>
@@ -1067,6 +1191,6 @@
     <script src="/js/import.js"></script>
     <script src="/js/reports.js"></script>
     <script src="/js/users.js"></script>
-    <script src="/js/marks_entry.js"></script>
+    <script src="/js/marks_entry.js?v=2"></script>
 </body>
 </html>

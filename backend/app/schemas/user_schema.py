@@ -7,7 +7,7 @@ Pydantic DTOs for authentication, user creation, and user responses.
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, Field
 
 # Allowed roles — enforced at schema validation level
 VALID_ROLES = ("admin", "teacher", "principal")
@@ -51,7 +51,7 @@ class UserResponse(BaseModel):
 class UserCreateRequest(BaseModel):
     """Request body for creating a new user (Admin only)."""
     username: str
-    password: str
+    password: str = Field(min_length=8)
     full_name: str
     role: RoleType  # Enforces only admin, teacher, principal
 
@@ -80,10 +80,16 @@ class UserUpdateRequest(BaseModel):
 
 class UserPasswordResetRequest(BaseModel):
     """Request body for resetting a user's password (Admin only)."""
-    new_password: str
+    new_password: str = Field(min_length=8)
 
 
 class PasswordChangeRequest(BaseModel):
     """Request body for a user changing their own password."""
     current_password: str
-    new_password: str
+    new_password: str = Field(min_length=8)
+
+
+class PaginatedUserResponse(BaseModel):
+    """Paginated list of users."""
+    total: int
+    items: list[UserResponse]

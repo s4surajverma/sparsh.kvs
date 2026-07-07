@@ -76,3 +76,15 @@ class EnrollmentResponse(BaseModel):
     class_name: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedStudentSearchResponse(BaseModel):
+    """Paginated list of student search results."""
+    total: int
+    items: list[StudentSearchResponse]
+
+
+class PaginatedEnrollmentResponse(BaseModel):
+    """Paginated list of enrollments."""
+    total: int
+    items: list[EnrollmentResponse]

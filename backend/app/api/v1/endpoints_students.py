@@ -27,6 +27,7 @@ from app.models.student import Student, StudentEnrollment
 from app.models.academic import AcademicYear, ClassLevel
 from app.schemas.student_schema import (
     StudentCreate, StudentUpdate, StudentResponse, StudentSearchResponse,
+    PaginatedStudentSearchResponse, PaginatedEnrollmentResponse,
     EnrollmentCreate, EnrollmentUpdate, EnrollmentResponse,
 )
 
@@ -63,12 +64,14 @@ def create_student(
     return student
 
 
-@router.get("/search", response_model=list[StudentSearchResponse])
+@router.get("/search", response_model=PaginatedStudentSearchResponse)
 def search_students(
     q: str | None = Query(None, description="Search by name or admission number"),
     class_level_id: int | None = Query(None, description="Filter by class level"),
     section: str | None = Query(None, description="Filter by section"),
     academic_year_id: int | None = Query(None, description="Filter by academic year (defaults to current)"),
+    skip: int = Query(0, ge=0, description="Pagination skip"),
+    limit: int = Query(100, ge=1, le=200, description="Pagination limit"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
@@ -117,9 +120,10 @@ def search_students(
     if section:
         query = query.filter(StudentEnrollment.section == section.upper())
 
-    results = query.order_by(Student.student_name).limit(100).all()
+    total = query.count()
+    results = query.order_by(Student.student_name).offset(skip).limit(limit).all()
 
-    return [
+    items = [
         StudentSearchResponse(
             admission_number=r.admission_number,
             student_name=r.student_name,
@@ -130,6 +134,7 @@ def search_students(
         )
         for r in results
     ]
+    return {"total": total, "items": items}
 
 
 @router.get("/{admission_number}", response_model=StudentResponse)
@@ -230,11 +235,13 @@ def create_enrollment(
     )
 
 
-@router.get("/enrollments/by-year/{academic_year_id}", response_model=list[EnrollmentResponse])
+@router.get("/enrollments/by-year/{academic_year_id}", response_model=PaginatedEnrollmentResponse)
 def list_enrollments_by_year(
     academic_year_id: int,
     class_level_id: int | None = Query(None, description="Filter by class"),
     section: str | None = Query(None, description="Filter by section"),
+    skip: int = Query(0, ge=0, description="Pagination skip"),
+    limit: int = Query(100, ge=1, le=200, description="Pagination limit"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
@@ -260,10 +267,11 @@ def list_enrollments_by_year(
     if section:
         query = query.filter(StudentEnrollment.section == section.upper())
 
+    total = query.count()
     query = query.order_by(ClassLevel.display_order, StudentEnrollment.section, StudentEnrollment.roll_number)
-    results = query.all()
+    results = query.offset(skip).limit(limit).all()
 
-    return [
+    items = [
         EnrollmentResponse(
             id=enrollment.id,
             admission_number=enrollment.admission_number,
@@ -277,6 +285,7 @@ def list_enrollments_by_year(
         )
         for enrollment, student_name, year_label, class_name in results
     ]
+    return {"total": total, "items": items}
 
 
 @router.get("/{admission_number}/enrollments", response_model=list[EnrollmentResponse])

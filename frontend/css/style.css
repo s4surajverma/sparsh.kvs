@@ -18,6 +18,18 @@ Main Stylesheet - Modern, Premium Design
     --text-muted: #64748b;    /* Slate 500 */
     --text-light: #f1f5f9;    /* Slate 100 */
     
+    --success: #10b981;       /* Emerald 500 */
+    --success-light: #d1fae5; /* Emerald 100 */
+    
+    --warning: #f59e0b;       /* Amber 500 */
+    --warning-light: #fef3c7; /* Amber 100 */
+
+    --info: #0ea5e9;          /* Sky 500 */
+    --info-light: #e0f2fe;    /* Sky 100 */
+
+    --secondary: #64748b;     /* Slate 500 */
+    --secondary-light: #f1f5f9;/* Slate 100 */
+    
     --border-color: #e2e8f0;  /* Slate 200 */
     
     /* Shadows */
@@ -254,6 +266,65 @@ a:hover {
     padding: 0 1.25rem;
 }
 
+/* Sidebar Section Styling */
+.nav-section-container {
+    margin-bottom: 1rem;
+    border-left: 3px solid transparent;
+    transition: all var(--transition-fast);
+}
+
+.nav-section-overview:hover {
+    border-left-color: var(--primary);
+    background-color: var(--primary-light);
+}
+.nav-section-overview .nav-link.active {
+    box-shadow: inset 2px 0 0 0 var(--primary);
+}
+
+.nav-section-data:hover {
+    border-left-color: var(--success);
+    background-color: var(--success-light);
+}
+.nav-section-data .nav-link:hover { color: var(--success); }
+.nav-section-data .nav-link.active {
+    color: var(--success);
+    background-color: var(--success-light);
+    box-shadow: inset 2px 0 0 0 var(--success);
+}
+
+.nav-section-reports:hover {
+    border-left-color: var(--warning);
+    background-color: var(--warning-light);
+}
+.nav-section-reports .nav-link:hover { color: var(--warning); }
+.nav-section-reports .nav-link.active {
+    color: var(--warning);
+    background-color: var(--warning-light);
+    box-shadow: inset 2px 0 0 0 var(--warning);
+}
+
+.nav-section-admin:hover {
+    border-left-color: var(--secondary);
+    background-color: var(--secondary-light);
+}
+.nav-section-admin .nav-link:hover { color: var(--secondary); }
+.nav-section-admin .nav-link.active {
+    color: var(--secondary);
+    background-color: var(--secondary-light);
+    box-shadow: inset 2px 0 0 0 var(--secondary);
+}
+
+.nav-section-help:hover {
+    border-left-color: var(--info);
+    background-color: var(--info-light);
+}
+.nav-section-help .nav-link:hover { color: var(--info); }
+.nav-section-help .nav-link.active {
+    color: var(--info);
+    background-color: var(--info-light);
+    box-shadow: inset 2px 0 0 0 var(--info);
+}
+
 .main-content {
     margin-top: 56px;
     padding: 2.5rem;
@@ -262,6 +333,16 @@ a:hover {
 /* Utility Classes */
 .hidden {
     display: none !important;
+}
+.cursor-pointer {
+    cursor: pointer !important;
+}
+.action-card {
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md) !important;
 }
 
 .section-card {
@@ -292,4 +373,33 @@ a:hover {
     vertical-align: middle;
     color: var(--text-main);
     border-bottom: 1px solid var(--border-color);
+}
+
+/* Marks Entry Grid Styles */
+.marks-cell-active {
+    background-color: #e0f2fe !important;
+}
+.marks-header-active {
+    background-color: #bae6fd !important;
+    color: #0369a1 !important;
+}
+.mark-warning {
+    border: 2px solid #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+.subject-tab {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+.subject-tab:hover {
+    color: var(--primary);
+    background-color: var(--bg-base);
+}
+.subject-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
 }
