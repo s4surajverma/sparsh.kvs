@@ -69,8 +69,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const opt = document.createElement('option');
                 opt.value = c.id;
                 opt.textContent = c.class_name;
+                opt.dataset.sections = c.sections || '';
                 importClass.appendChild(opt);
             });
+
+            importClass.addEventListener('change', (e) => {
+                const selectedOpt = e.target.selectedOptions[0];
+                const sectionSelect = document.getElementById('importSection');
+                sectionSelect.innerHTML = '<option value="">Select section...</option>';
+                if (selectedOpt && selectedOpt.dataset.sections) {
+                    const secs = selectedOpt.dataset.sections.split(',');
+                    secs.forEach(s => {
+                        const val = s.trim();
+                        if(val) sectionSelect.innerHTML += `<option value="${val}">${val}</option>`;
+                    });
+                }
+            });
+            importClass.dispatchEvent(new Event('change'));
 
             // Exams
             const exams = await apiClient.fetch('/academic/exams');
@@ -689,4 +704,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         html += '</tbody></table></div>';
         area.innerHTML = html;
     }
+
+    // ============================================
+    // Template Download
+    // ============================================
+    document.getElementById('btnDownloadResultsTemplate')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            await apiClient.downloadFile('/templates/download/results', 'results_template.xlsx');
+        } catch (err) {
+            showAlert('Failed to download template: ' + err.message);
+        }
+    });
 });

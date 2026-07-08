@@ -108,7 +108,31 @@
                                 </li>
                             </ul>
                         </li>
-                        
+
+                        <!-- ANALYTICS -->
+                        <li class="nav-section-container nav-section-analytics">
+                            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted nav-section-header">
+                                <span>Analytics</span>
+                            </h6>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/student-analytics" data-view="student-analytics">
+                                        <i class="bi bi-graph-up me-2"></i> Student Trend
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/class-analytics" data-view="class-analytics">
+                                        <i class="bi bi-bar-chart-line me-2"></i> Class / Section Trend
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/subject-analytics" data-view="subject-analytics">
+                                        <i class="bi bi-clipboard-data me-2"></i> Subject Trend
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
                         <!-- ADMINISTRATION -->
                         <li class="nav-section-container nav-section-admin">
                             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted nav-section-header">
@@ -121,8 +145,38 @@
                                     </a>
                                 </li>
                                 <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/student-registry" data-view="student-registry">
+                                        <i class="bi bi-people me-2"></i> Student Registry
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/student-import" data-view="student-import">
+                                        <i class="bi bi-person-plus me-2"></i> Bulk Student Import
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/bulk-promotion" data-view="bulk-promotion">
+                                        <i class="bi bi-arrow-up-circle me-2"></i> Bulk Promotion
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
                                     <a class="nav-link" href="/academic-years" data-view="academic-years">
                                         <i class="bi bi-calendar3 me-2"></i> Academic Years
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/class-levels" data-view="class-levels">
+                                        <i class="bi bi-diagram-3 me-2"></i> Class Levels
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/subjects" data-view="subjects">
+                                        <i class="bi bi-book me-2"></i> Subjects
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/exams" data-view="exams">
+                                        <i class="bi bi-clipboard-check me-2"></i> Exams
                                     </a>
                                 </li>
                                 <li class="nav-item role-admin hidden">
@@ -293,6 +347,268 @@
                     </div>
                 </div>
 
+                <!-- View: Class Levels -->
+                <div id="view-class-levels" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-diagram-3 me-2 text-primary"></i> Class Levels</h1>
+                            <p class="text-muted small mb-0 mt-1">Manage grade standards (e.g. Class 6, Class 7...)</p>
+                        </div>
+                        <div class="view-actions">
+                            <button class="btn btn-primary" id="btnNewClassLevel">Add Class Level</button>
+                        </div>
+                    </div>
+                    <div id="classLevelsAlertArea"></div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Class Name</th>
+                                    <th>Display Order</th>
+                                    <th>Sections</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classLevelsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- View: Subjects -->
+                <div id="view-subjects" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-book me-2 text-primary"></i> Subjects</h1>
+                            <p class="text-muted small mb-0 mt-1">Manage the master catalog of academic subjects</p>
+                        </div>
+                        <div class="view-actions">
+                            <button class="btn btn-primary" id="btnNewSubject">Add Subject</button>
+                        </div>
+                    </div>
+                    <div id="subjectsAlertArea"></div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Subject Name</th>
+                                    <th>Subject Code</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjectsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- View: Exams -->
+                <div id="view-exams" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-clipboard-check me-2 text-primary"></i> Exams</h1>
+                            <p class="text-muted small mb-0 mt-1">Manage examination events (e.g. PT1, Half Yearly, Annual)</p>
+                        </div>
+                        <div class="view-actions">
+                            <button class="btn btn-primary" id="btnNewExam">Add Exam</button>
+                        </div>
+                    </div>
+                    <div id="examsAlertArea"></div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Exam Name</th>
+                                    <th>Display Order</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="examsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- View: Student Analytics -->
+                <div id="view-student-analytics" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-graph-up me-2 text-primary"></i> Student Trend Analysis</h1>
+                            <p class="text-muted small mb-0 mt-1">Track a student's performance across academic years, per subject</p>
+                        </div>
+                    </div>
+                    <div id="studentAnalyticsAlertArea"></div>
+
+                    <!-- Search Input -->
+                    <div class="section-card mb-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">Admission Number</label>
+                                <input type="text" class="form-control" id="saAdmissionNumber" placeholder="e.g. ADM001">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" id="btnLoadStudentAnalytics"><i class="bi bi-search me-1"></i>Load Trends</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="studentAnalyticsResult" class="hidden">
+                        <!-- Student Info -->
+                        <div class="card border-0 shadow-sm rounded-4 p-3 mb-4" style="background: linear-gradient(135deg, var(--primary-light), #fff);">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 fw-bold fs-5" style="width:48px;height:48px;" id="saInitials">?</div>
+                                <div>
+                                    <h5 class="fw-bold mb-0" id="saStudentName"></h5>
+                                    <small class="text-muted" id="saAdmDisplay"></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mode Toggle -->
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="text-muted small fw-semibold">Display:</span>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="saModeToggle" id="saModePct" value="percentage" autocomplete="off" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="saModePct">Avg Percentage</label>
+                                <input type="radio" class="btn-check" name="saModeToggle" id="saModeMarks" value="marks" autocomplete="off">
+                                <label class="btn btn-outline-primary btn-sm" for="saModeMarks">Avg Marks</label>
+                            </div>
+                        </div>
+
+                        <!-- Chart -->
+                        <div class="section-card mb-4">
+                            <canvas id="studentAnalyticsChart" style="max-height:400px;"></canvas>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="section-card">
+                            <h6 class="fw-bold mb-3">Data Table</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle" id="saDataTable">
+                                    <thead class="table-light" id="saDataTableHead"></thead>
+                                    <tbody id="saDataTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View: Class Analytics -->
+                <div id="view-class-analytics" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-bar-chart-line me-2 text-primary"></i> Class / Section Trend</h1>
+                            <p class="text-muted small mb-0 mt-1">Average performance for a class-section label across academic years</p>
+                        </div>
+                    </div>
+                    <div id="classAnalyticsAlertArea"></div>
+
+                    <div class="section-card mb-4">
+                        <div class="alert alert-info border-0 rounded-3 mb-3 py-2 px-3" style="font-size:0.85rem;">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <strong>Cohort-label view:</strong> This compares the students <em>occupying</em> a class-section label each year — not the same individuals as they are promoted. Class 6-A in 2023-24 is a different group from Class 6-A in 2024-25.
+                        </div>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Class</label>
+                                <select class="form-select" id="caClassSelect"><option value="">Select class...</option></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Section</label>
+                                <select class="form-select" id="caSection">
+                                    <option value="">All Sections</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Subject <span class="text-muted">(optional)</span></label>
+                                <select class="form-select" id="caSubjectFilter"><option value="">All subjects</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" id="btnLoadClassAnalytics"><i class="bi bi-search me-1"></i>Load Trends</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="classAnalyticsResult" class="hidden">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="text-muted small fw-semibold">Display:</span>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="caModeToggle" id="caModePct" value="percentage" autocomplete="off" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="caModePct">Avg Percentage</label>
+                                <input type="radio" class="btn-check" name="caModeToggle" id="caModeMarks" value="marks" autocomplete="off">
+                                <label class="btn btn-outline-primary btn-sm" for="caModeMarks">Avg Marks</label>
+                            </div>
+                        </div>
+                        <div class="section-card mb-4">
+                            <canvas id="classAnalyticsChart" style="max-height:400px;"></canvas>
+                        </div>
+                        <div class="section-card">
+                            <h6 class="fw-bold mb-3">Data Table</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead class="table-light" id="caDataTableHead"></thead>
+                                    <tbody id="caDataTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View: Subject Analytics -->
+                <div id="view-subject-analytics" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-clipboard-data me-2 text-primary"></i> Subject Trend Analysis</h1>
+                            <p class="text-muted small mb-0 mt-1">Average performance for a subject across years, optionally filtered by class</p>
+                        </div>
+                    </div>
+                    <div id="subjectAnalyticsAlertArea"></div>
+
+                    <div class="section-card mb-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Subject</label>
+                                <select class="form-select" id="suaSubjectSelect"><option value="">Select subject...</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Class <span class="text-muted">(optional)</span></label>
+                                <select class="form-select" id="suaClassFilter"><option value="">All classes</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" id="btnLoadSubjectAnalytics"><i class="bi bi-search me-1"></i>Load Trends</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="subjectAnalyticsResult" class="hidden">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="text-muted small fw-semibold">Display:</span>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="suaModeToggle" id="suaModePct" value="percentage" autocomplete="off" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="suaModePct">Avg Percentage</label>
+                                <input type="radio" class="btn-check" name="suaModeToggle" id="suaModeMarks" value="marks" autocomplete="off">
+                                <label class="btn btn-outline-primary btn-sm" for="suaModeMarks">Avg Marks</label>
+                            </div>
+                        </div>
+                        <div class="section-card mb-4">
+                            <canvas id="subjectAnalyticsChart" style="max-height:400px;"></canvas>
+                        </div>
+                        <div class="section-card">
+                            <h6 class="fw-bold mb-3">Data Table</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead class="table-light" id="suaDataTableHead"></thead>
+                                    <tbody id="suaDataTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- View: About -->
                 <div id="view-about" class="view-section hidden">
                     <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
@@ -381,7 +697,17 @@
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Section</label>
-                                <input type="text" class="form-control" id="searchSection" required placeholder="e.g. A">
+                                <select class="form-select" id="searchSection" required>
+                                    <option value="">Select section...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="G">G</option>
+                                    <option value="H">H</option>
+                                </select>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Roll Number</label>
@@ -456,7 +782,9 @@
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Section</label>
-                                <input type="text" class="form-control" id="marksSection" required placeholder="e.g. A">
+                                <select class="form-select" id="marksSection" required>
+                                    <option value="">Select section...</option>
+                                </select>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Exam</label>
@@ -495,6 +823,9 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check2-circle me-1" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg>
                                     Save All Marks
                                 </button>
+                                <a class="btn btn-outline-success" id="btnExportMarks" href="#" title="Export current marks to Excel">
+                                    <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
+                                </a>
                             </div>
                         </div>
 
@@ -527,7 +858,11 @@
                             <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-file-earmark-spreadsheet me-2 text-primary"></i> Excel Result Import</h1>
                             <p class="text-muted small mb-0 mt-1">Batch import student data from Excel</p>
                         </div>
-                        <div class="view-actions"></div>
+                        <div class="view-actions">
+                            <a class="btn btn-outline-secondary" href="#" id="btnDownloadResultsTemplate" title="Download blank results template">
+                                <i class="bi bi-download me-1"></i>Download Template
+                            </a>
+                        </div>
                     </div>
 
                     <div id="importAlertArea"></div>
@@ -547,7 +882,9 @@
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Section</label>
-                                <input type="text" class="form-control" id="importSection" required placeholder="e.g. A">
+                                <select class="form-select" id="importSection" required>
+                                    <option value="">Select section...</option>
+                                </select>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Exam</label>
@@ -861,6 +1198,261 @@
                     </div>
 
                 <!-- View: Storage Settings -->
+                <!-- View: Student Registry -->
+                <div id="view-student-registry" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-people me-2 text-primary"></i> Student Registry</h1>
+                            <p class="text-muted small mb-0 mt-1">Add, edit and search all students</p>
+                        </div>
+                        <div class="view-actions">
+                            <button class="btn btn-primary" id="btnNewStudent">Add Student</button>
+                        </div>
+                    </div>
+                    <div id="studentRegistryAlertArea"></div>
+                    <div class="section-card mb-4">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">Search</label>
+                                <input type="text" class="form-control" id="studentSearchInput" placeholder="Admission number or name...">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-primary w-100" id="btnStudentSearch"><i class="bi bi-search me-1"></i>Search</button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary w-100" id="btnStudentShowAll">Show All</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Admission No</th>
+                                    <th>Student Name</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentRegistryTableBody">
+                                <tr><td colspan="3" class="text-center text-muted">Search or click Show All to load students.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="studentRegistryPagination" class="d-flex justify-content-between align-items-center mt-3 hidden">
+                        <small class="text-muted" id="studentPaginationInfo"></small>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-secondary" id="btnStudentPrev" disabled><i class="bi bi-chevron-left"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary" id="btnStudentNext" disabled><i class="bi bi-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View: Student Bulk Import -->
+                <div id="view-student-import" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-person-plus me-2 text-primary"></i> Bulk Student Import</h1>
+                            <p class="text-muted small mb-0 mt-1">Upload an Excel file to create students and enrollments in bulk</p>
+                        </div>
+                        <div class="view-actions">
+                            <a class="btn btn-outline-secondary" href="#" id="btnDownloadStudentMasterTemplate" title="Download blank student master template">
+                                <i class="bi bi-download me-1"></i>Download Template
+                            </a>
+                        </div>
+                    </div>
+                    <div id="siAlertArea"></div>
+
+                    <!-- Step 1: Upload + config -->
+                    <div class="section-card" id="siStep1">
+                        <h5 class="fw-bold mb-3">Step 1: Upload File &amp; Configure</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Target Academic Year</label>
+                                <select class="form-select" id="siTargetYear"><option value="">Select year...</option></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Excel File (.xlsx)</label>
+                                <input type="file" class="form-control" id="siFile" accept=".xlsx">
+                            </div>
+                            <div class="col-12 mt-2">
+                                <button class="btn btn-primary" id="btnSiAnalyze"><i class="bi bi-search me-1"></i>Analyze File</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Column preview -->
+                    <div class="section-card hidden" id="siStep2">
+                        <h5 class="fw-bold mb-3">Step 2: Confirm Column Mapping</h5>
+                        <div id="siColumnPreview"></div>
+                        <div class="alert alert-info rounded-3 mt-3 mb-0" id="siEnrollmentNote" style="font-size:0.85rem;"></div>
+                        <div class="mt-3 d-flex gap-2">
+                            <button class="btn btn-outline-secondary" id="btnSiBack1">Back</button>
+                            <button class="btn btn-primary" id="btnSiDryRun"><i class="bi bi-shield-check me-1"></i>Run Validation</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Dry-run results with interactive decisions -->
+                    <div class="section-card hidden" id="siStep3">
+                        <h5 class="fw-bold mb-3">Step 3: Review &amp; Decide</h5>
+                        <div id="siDryRunSummary" class="mb-3"></div>
+
+                        <!-- New students (no decision needed) -->
+                        <div id="siNewStudentsSection" class="hidden mb-4">
+                            <h6 class="fw-semibold text-success mb-2"><i class="bi bi-person-plus me-1"></i> New Students (<span id="siNewCount">0</span>)</h6>
+                            <div class="table-responsive" style="max-height:220px;overflow-y:auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light"><tr><th>Row</th><th>Admission No</th><th>Name</th><th>Class</th><th>Section</th><th>Roll</th></tr></thead>
+                                    <tbody id="siNewStudentsBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Existing students (admin decides per-row) -->
+                        <div id="siExistingSection" class="hidden mb-4">
+                            <h6 class="fw-semibold text-warning mb-2"><i class="bi bi-exclamation-triangle me-1"></i> Existing Students — Choose Action (<span id="siExistingCount">0</span>)</h6>
+                            <div class="table-responsive" style="max-height:260px;overflow-y:auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light"><tr><th>Row</th><th>Admission No</th><th>Name in File</th><th>Name in DB</th><th>Action</th></tr></thead>
+                                    <tbody id="siExistingBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Conflicts -->
+                        <div id="siConflictSection" class="hidden mb-4">
+                            <h6 class="fw-semibold text-info mb-2"><i class="bi bi-info-circle me-1"></i> Already Enrolled in Target Year — Skipped (<span id="siConflictCount">0</span>)</h6>
+                            <div class="table-responsive" style="max-height:160px;overflow-y:auto;">
+                                <table class="table table-sm">
+                                    <thead class="table-light"><tr><th>Admission No</th><th>Name in File</th></tr></thead>
+                                    <tbody id="siConflictBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Errors -->
+                        <div id="siErrorSection" class="hidden mb-4">
+                            <h6 class="fw-semibold text-danger mb-2"><i class="bi bi-x-circle me-1"></i> Errors (<span id="siErrorCount">0</span>)</h6>
+                            <div id="siErrorList"></div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn btn-outline-secondary" id="btnSiBack2">Back</button>
+                            <button class="btn btn-success" id="btnSiCommit"><i class="bi bi-check-circle me-1"></i>Commit Import</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Result -->
+                    <div class="section-card hidden" id="siStep4">
+                        <h5 class="fw-bold mb-3">Import Complete</h5>
+                        <div id="siResultSummary"></div>
+                        <button class="btn btn-outline-primary mt-3" id="btnSiReset">Start New Import</button>
+                    </div>
+                </div>
+
+                <!-- View: Bulk Promotion -->
+                <div id="view-bulk-promotion" class="view-section hidden">
+                    <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-arrow-up-circle me-2 text-primary"></i> Bulk Promotion</h1>
+                            <p class="text-muted small mb-0 mt-1">Promote an entire class-section to the next year in one step</p>
+                        </div>
+                    </div>
+                    <div id="promoAlertArea"></div>
+
+                    <!-- Step 1: Configuration -->
+                    <div class="section-card" id="promoStep1">
+                        <div class="row g-3">
+                            <div class="col-12"><h6 class="fw-bold text-muted text-uppercase" style="letter-spacing:.05em">Source</h6></div>
+                            <div class="col-md-3">
+                                <label class="form-label">Academic Year</label>
+                                <select class="form-select" id="promoSrcYear"><option value="">Select year...</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Class</label>
+                                <select class="form-select" id="promoSrcClass"><option value="">Select class...</option></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Section</label>
+                                <select class="form-select" id="promoSrcSection" required>
+                                    <option value="">Select section...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 mt-2"><h6 class="fw-bold text-muted text-uppercase" style="letter-spacing:.05em">Target</h6></div>
+                            <div class="col-md-3">
+                                <label class="form-label">Academic Year</label>
+                                <select class="form-select" id="promoTgtYear"><option value="">Select year...</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Class</label>
+                                <select class="form-select" id="promoTgtClass"><option value="">Select class...</option></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Section</label>
+                                <select class="form-select" id="promoTgtSection" required>
+                                    <option value="">Select section...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 mt-2">
+                                <label class="form-label fw-semibold">Roll Number Assignment</label>
+                                <div class="d-flex gap-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="promoRollMode" id="promoRollKeep" value="keep" checked>
+                                        <label class="form-check-label" for="promoRollKeep">Keep Existing</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="promoRollMode" id="promoRollClear" value="clear">
+                                        <label class="form-check-label" for="promoRollClear">Clear (set blank)</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="promoRollMode" id="promoRollAuto" value="auto">
+                                        <label class="form-check-label" for="promoRollAuto">Auto-Generate (1, 2, 3… by name)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-2">
+                                <button class="btn btn-primary" id="btnPromoPreview"><i class="bi bi-eye me-1"></i>Preview Students</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Preview + Exclusions -->
+                    <div class="section-card hidden" id="promoStep2">
+                        <h5 class="fw-bold mb-1">Preview: <span id="promoPreviewLabel"></span></h5>
+                        <p class="text-muted small mb-3">Uncheck students to exclude from promotion.</p>
+                        <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+                            <table class="table table-sm table-bordered align-middle">
+                                <thead class="table-light" style="position:sticky;top:0;z-index:1;">
+                                    <tr>
+                                        <th style="width:40px;">
+                                            <input type="checkbox" id="promoSelectAll" checked title="Select/Deselect all">
+                                        </th>
+                                        <th>Roll No</th>
+                                        <th>Admission No</th>
+                                        <th>Student Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="promoStudentBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted"><span id="promoSelectedCount">0</span> students selected for promotion.</small>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary" id="btnPromoBack">Back</button>
+                                <button class="btn btn-success" id="btnPromoConfirm"><i class="bi bi-arrow-up-circle me-1"></i>Promote Selected</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Result -->
+                    <div class="section-card hidden" id="promoStep3">
+                        <div id="promoResultSummary"></div>
+                        <button class="btn btn-outline-primary mt-3" id="btnPromoReset">Promote Another Class</button>
+                    </div>
+                </div>
+
                 <div id="view-storage-settings" class="view-section hidden">
                     <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                         <div>
@@ -1181,11 +1773,152 @@
         </div>
     </div>
 
+    <!-- Student Add/Edit Modal -->
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="studentForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="studentModalTitle">Add Student</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="studentModalAdm">
+                        <div class="mb-3">
+                            <label class="form-label">Admission Number</label>
+                            <input type="text" class="form-control" id="studentModalAdmInput" required placeholder="e.g. ADM001">
+                            <small class="text-muted" id="studentAdmHelp">Must be unique. Cannot be changed after creation.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Student Name</label>
+                            <input type="text" class="form-control" id="studentModalName" required placeholder="Full name">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveStudent">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Level Modal -->
+    <div class="modal fade" id="classLevelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="classLevelForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="classLevelModalTitle">Add Class Level</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="classLevelId">
+                        <div class="mb-3">
+                            <label class="form-label">Class Name</label>
+                            <input type="text" class="form-control" id="classLevelName" required placeholder="e.g. Class 6">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="classLevelOrder" required min="1" placeholder="e.g. 6">
+                            <small class="text-muted">Controls sort order in dropdowns (lower numbers appear first).</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label d-block">Available Sections</label>
+                            <div class="d-flex flex-wrap gap-3" id="classLevelSections">
+                                <div class="form-check"><input class="form-check-input section-cb" type="checkbox" value="A" id="secA"><label class="form-check-label" for="secA">A</label></div>
+                                <div class="form-check"><input class="form-check-input section-cb" type="checkbox" value="B" id="secB"><label class="form-check-label" for="secB">B</label></div>
+                                <div class="form-check"><input class="form-check-input section-cb" type="checkbox" value="C" id="secC"><label class="form-check-label" for="secC">C</label></div>
+                                <div class="form-check"><input class="form-check-input section-cb" type="checkbox" value="D" id="secD"><label class="form-check-label" for="secD">D</label></div>
+                                <div class="form-check"><input class="form-check-input section-cb" type="checkbox" value="E" id="secE"><label class="form-check-label" for="secE">E</label></div>
+                                <div class="form-check"><input class="form-check-input section-cb" type="checkbox" value="F" id="secF"><label class="form-check-label" for="secF">F</label></div>
+                                <div class="form-check"><input class="form-check-input section-cb" type="checkbox" value="G" id="secG"><label class="form-check-label" for="secG">G</label></div>
+                                <div class="form-check"><input class="form-check-input section-cb" type="checkbox" value="H" id="secH"><label class="form-check-label" for="secH">H</label></div>
+                            </div>
+                            <small class="text-muted">Check the sections that exist for this class level.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveClassLevel">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Modal -->
+    <div class="modal fade" id="subjectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="subjectForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="subjectModalTitle">Add Subject</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="subjectId">
+                        <div class="mb-3">
+                            <label class="form-label">Subject Name</label>
+                            <input type="text" class="form-control" id="subjectName" required placeholder="e.g. Mathematics">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Subject Code <span class="text-muted">(optional)</span></label>
+                            <input type="text" class="form-control" id="subjectCode" placeholder="e.g. MATH">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveSubject">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Modal -->
+    <div class="modal fade" id="examModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="examForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="examModalTitle">Add Exam</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="examId">
+                        <div class="mb-3">
+                            <label class="form-label">Exam Name</label>
+                            <input type="text" class="form-control" id="examName" required placeholder="e.g. PT1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="examOrder" required min="1" placeholder="e.g. 1">
+                            <small class="text-muted">Controls sort order in dropdowns and result tables (lower numbers appear first).</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btnSaveExam">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/api.js"></script>
     <script src="/js/dashboard.js"></script>
     <script src="/js/academic_years.js"></script>
+    <script src="/js/class_levels.js"></script>
+    <script src="/js/subjects.js"></script>
+    <script src="/js/exams.js"></script>
+    <script src="/js/analytics.js"></script>
+    <script src="/js/students_ui.js"></script>
+    <script src="/js/student_import.js"></script>
+    <script src="/js/promotion.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="/js/storage_settings.js"></script>
     <script src="/js/import.js"></script>

@@ -68,8 +68,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const opt = document.createElement('option');
                 opt.value = c.id;
                 opt.textContent = c.class_name;
+                opt.dataset.sections = c.sections || '';
                 marksClass.appendChild(opt);
             });
+
+            marksClass.addEventListener('change', (e) => {
+                const selectedOpt = e.target.selectedOptions[0];
+                const sectionSelect = document.getElementById('marksSection');
+                sectionSelect.innerHTML = '<option value="">Select section...</option>';
+                if (selectedOpt && selectedOpt.dataset.sections) {
+                    const secs = selectedOpt.dataset.sections.split(',');
+                    secs.forEach(s => {
+                        const val = s.trim();
+                        if(val) sectionSelect.innerHTML += `<option value="${val}">${val}</option>`;
+                    });
+                }
+            });
+            // Trigger once for initial load if any class is pre-selected (unlikely initially)
+            marksClass.dispatchEvent(new Event('change'));
 
             const exams = await apiClient.fetch('/academic/exams');
             marksExam.innerHTML = '';

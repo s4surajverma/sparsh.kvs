@@ -41,12 +41,14 @@ class ClassLevelCreate(BaseModel):
     """Request body for creating a new class level."""
     class_name: str  # e.g. "Class 6"
     display_order: int  # e.g. 6
+    sections: str | None = None  # e.g. "A,B,C"
 
 
 class ClassLevelUpdate(BaseModel):
     """Request body for updating a class level."""
     class_name: str | None = None
     display_order: int | None = None
+    sections: str | None = None
 
 
 class ClassLevelResponse(BaseModel):
@@ -54,6 +56,7 @@ class ClassLevelResponse(BaseModel):
     id: int
     class_name: str
     display_order: int
+    sections: str | None
 
     model_config = ConfigDict(from_attributes=True)
 

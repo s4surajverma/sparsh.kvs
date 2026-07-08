@@ -39,6 +39,7 @@ class ClassLevel(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     class_name: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)  # e.g. "Class 6"
     display_order: Mapped[int] = mapped_column(Integer, nullable=False)  # For sorting: 6, 7, 8...12
+    sections: Mapped[str | None] = mapped_column(String(50), nullable=True, default="A,B,C,D,E,F,G,H")  # comma-separated e.g. "A,B,C"
 
     # --- Relationships ---
     enrollments: Mapped[list["StudentEnrollment"]] = relationship(
