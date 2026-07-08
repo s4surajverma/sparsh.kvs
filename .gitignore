@@ -85,9 +85,10 @@ backend/create_test_excel.py
 backend/test_api.py
 
 # ============================================
-# Byte-compiled / cached
+# Byte-compiled / cached / testing
 # ============================================
 *.pyc
 *.pyo
+.pytest_cache/
 pip-log.txt
 pip-delete-this-directory.txt
