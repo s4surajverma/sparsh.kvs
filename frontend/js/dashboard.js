@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             history.pushState({ view: viewId }, '', targetPath);
         }
     }
+    window.switchView = switchView;
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {

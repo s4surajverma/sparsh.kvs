@@ -39,11 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Loading…</td></tr>';
         try {
             const skip   = (page - 1) * PAGE_SIZE;
-            let url = `/students/?limit=${PAGE_SIZE}&skip=${skip}`;
-            if (query.trim()) url += `&search=${encodeURIComponent(query.trim())}`;
+            let url = `/students/search?limit=${PAGE_SIZE}&skip=${skip}`;
+            if (query.trim()) url += `&q=${encodeURIComponent(query.trim())}`;
 
-            // Try /students/search if the query looks like an admission number,
-            // otherwise use the list endpoint with search param.
             const data = await apiClient.fetch(url);
 
             // API returns array or { students, total } — handle both shapes
@@ -257,7 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btnGoToBulkStudentImport')?.addEventListener('click', () => {
         // Navigate to the Bulk Student Import view
-        const link = document.querySelector('a[data-view="student-import"]');
-        if (link) link.click();
+        if (typeof window.switchView === 'function') {
+            window.switchView('student-import');
+        } else {
+            const link = document.querySelector('a[data-view="student-import"]');
+            if (link) link.click();
+        }
     });
 });
