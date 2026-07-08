@@ -82,9 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const sectionSelect = document.getElementById(sectionId);
                     if (sectionSelect) {
                         sectionSelect.innerHTML = '<option value="">Select section...</option>';
-                        if (selectedOpt && selectedOpt.dataset.sections) {
-                            const secs = selectedOpt.dataset.sections.split(',');
-                            secs.forEach(s => {
+                        if (selectedOpt) {
+                            const sectionsStr = selectedOpt.dataset.sections && selectedOpt.dataset.sections.trim() ? selectedOpt.dataset.sections : 'A,B,C,D,E,F,G,H';
+                            sectionsStr.split(',').forEach(s => {
                                 const val = s.trim();
                                 if(val) sectionSelect.innerHTML += `<option value="${val}">${val}</option>`;
                             });

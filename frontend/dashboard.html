@@ -87,6 +87,11 @@
                                         <i class="bi bi-file-earmark-spreadsheet me-2"></i> Excel Import
                                     </a>
                                 </li>
+                                <li class="nav-item role-admin role-teacher hidden">
+                                    <a class="nav-link" href="/student-entry" data-view="student-entry">
+                                        <i class="bi bi-people me-2"></i> Student Entry
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 
@@ -144,11 +149,7 @@
                                         <i class="bi bi-people me-2"></i> User Management
                                     </a>
                                 </li>
-                                <li class="nav-item role-admin hidden">
-                                    <a class="nav-link" href="/student-registry" data-view="student-registry">
-                                        <i class="bi bi-people me-2"></i> Student Registry
-                                    </a>
-                                </li>
+
                                 <li class="nav-item role-admin hidden">
                                     <a class="nav-link" href="/student-import" data-view="student-import">
                                         <i class="bi bi-person-plus me-2"></i> Bulk Student Import
@@ -1198,15 +1199,21 @@
                     </div>
 
                 <!-- View: Storage Settings -->
-                <!-- View: Student Registry -->
-                <div id="view-student-registry" class="view-section hidden">
+                <!-- View: Student Entry -->
+                <div id="view-student-entry" class="view-section hidden">
                     <div class="view-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                         <div>
-                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-people me-2 text-primary"></i> Student Registry</h1>
-                            <p class="text-muted small mb-0 mt-1">Add, edit and search all students</p>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-people me-2 text-primary"></i> Student Entry</h1>
+                            <p class="text-muted small mb-0 mt-1">Add, edit, search or bulk import students</p>
                         </div>
-                        <div class="view-actions">
-                            <button class="btn btn-primary" id="btnNewStudent">Add Student</button>
+                        <div class="view-actions d-flex gap-2">
+                            <a class="btn btn-outline-secondary" href="#" id="btnDownloadStudentMasterTemplateEntry" title="Download Excel template for bulk student upload">
+                                <i class="bi bi-download me-1"></i>Download Template
+                            </a>
+                            <button class="btn btn-outline-primary" id="btnGoToBulkStudentImport">
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i>Bulk Import
+                            </button>
+                            <button class="btn btn-primary" id="btnNewStudent"><i class="bi bi-plus-lg me-1"></i>Add Student</button>
                         </div>
                     </div>
                     <div id="studentRegistryAlertArea"></div>

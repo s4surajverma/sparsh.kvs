@@ -186,6 +186,9 @@ def update_class_level(
     if data.display_order is not None:
         cls.display_order = data.display_order
 
+    if data.sections is not None:
+        cls.sections = data.sections
+
     db.commit()
     db.refresh(cls)
     return cls

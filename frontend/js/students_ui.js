@@ -1,7 +1,7 @@
 /**
- * SPARSH - Student Registry UI
+ * SPARSH - Student Entry UI
  *
- * Handles the student-registry view:
+ * Handles the student-entry view:
  *  - Paginated search table (admission number or name)
  *  - Add / Edit modal (POST /students/, PUT /students/{adm})
  *  - Export button wiring in marks-entry view
@@ -11,8 +11,8 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ── Student Registry ──────────────────────────────────────────────
-    const viewEl = document.getElementById('view-student-registry');
+    // ── Student Entry ──────────────────────────────────────────────
+    const viewEl = document.getElementById('view-student-entry');
     if (!viewEl) return;
 
     const tableBody = document.getElementById('studentRegistryTableBody');
@@ -243,5 +243,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Also update when marksClass/marksExam/marksSection change
     ['marksClass', 'marksExam', 'marksSection'].forEach(id => {
         document.getElementById(id)?.addEventListener('change', updateExportLink);
+    });
+
+    // ── Student Entry Action Buttons ──────────────────────────────────
+    document.getElementById('btnDownloadStudentMasterTemplateEntry')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            await apiClient.downloadFile('/templates/download/student_master', 'student_master_template.xlsx');
+        } catch (err) {
+            showAlert('Failed to download template: ' + err.message);
+        }
+    });
+
+    document.getElementById('btnGoToBulkStudentImport')?.addEventListener('click', () => {
+        // Navigate to the Bulk Student Import view
+        const link = document.querySelector('a[data-view="student-import"]');
+        if (link) link.click();
     });
 });

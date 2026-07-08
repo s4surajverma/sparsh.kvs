@@ -77,9 +77,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const selectedOpt = e.target.selectedOptions[0];
                 const sectionSelect = document.getElementById('importSection');
                 sectionSelect.innerHTML = '<option value="">Select section...</option>';
-                if (selectedOpt && selectedOpt.dataset.sections) {
-                    const secs = selectedOpt.dataset.sections.split(',');
-                    secs.forEach(s => {
+                if (selectedOpt) {
+                    const sectionsStr = selectedOpt.dataset.sections && selectedOpt.dataset.sections.trim() ? selectedOpt.dataset.sections : 'A,B,C,D,E,F,G,H';
+                    sectionsStr.split(',').forEach(s => {
                         const val = s.trim();
                         if(val) sectionSelect.innerHTML += `<option value="${val}">${val}</option>`;
                     });
