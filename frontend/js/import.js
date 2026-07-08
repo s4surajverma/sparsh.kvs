@@ -105,7 +105,55 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    initImportData();
+    // Reload dropdowns whenever the view becomes visible (e.g. after adding new exams)
+    let importDropdownsLoaded = false;
+
+    async function refreshImportDropdowns() {
+        try {
+            const classes = await apiClient.fetch('/academic/classes');
+            importClass.innerHTML = '';
+            classes.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.class_name;
+                opt.dataset.sections = c.sections || '';
+                importClass.appendChild(opt);
+            });
+            importClass.dispatchEvent(new Event('change'));
+
+            const exams = await apiClient.fetch('/academic/exams');
+            importExam.innerHTML = '';
+            exams.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.id;
+                opt.textContent = e.exam_name;
+                importExam.appendChild(opt);
+            });
+
+            systemSubjects = await apiClient.fetch('/academic/subjects');
+        } catch (err) {
+            showAlert('Failed to refresh dropdowns: ' + err.message);
+        }
+    }
+
+    async function initAndRefreshImport() {
+        if (!importDropdownsLoaded) {
+            await initImportData();
+            importDropdownsLoaded = true;
+        } else {
+            await refreshImportDropdowns();
+        }
+    }
+
+    const importObs = new MutationObserver(mutations => {
+        mutations.forEach(m => {
+            if (m.attributeName === 'class' && !viewImport.classList.contains('hidden')) {
+                initAndRefreshImport();
+            }
+        });
+    });
+    importObs.observe(viewImport, { attributes: true });
+    if (!viewImport.classList.contains('hidden')) initAndRefreshImport();
 
     // ============================================
     // STEP 1: Upload & Analyze

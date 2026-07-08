@@ -152,6 +152,15 @@ def create_class_level(
             detail=f"Class '{data.class_name}' already exists.",
         )
 
+    # Shift existing display_orders to make room
+    if data.display_order is not None:
+        db.query(ClassLevel).filter(
+            ClassLevel.display_order >= data.display_order
+        ).update(
+            {ClassLevel.display_order: ClassLevel.display_order + 1},
+            synchronize_session='fetch'
+        )
+
     cls = ClassLevel(**data.model_dump())
     db.add(cls)
     db.commit()
@@ -184,6 +193,14 @@ def update_class_level(
         cls.class_name = data.class_name
 
     if data.display_order is not None:
+        # Shift other items to make room at the new position
+        db.query(ClassLevel).filter(
+            ClassLevel.display_order >= data.display_order,
+            ClassLevel.id != class_id,
+        ).update(
+            {ClassLevel.display_order: ClassLevel.display_order + 1},
+            synchronize_session='fetch'
+        )
         cls.display_order = data.display_order
 
     if data.sections is not None:
@@ -304,6 +321,15 @@ def create_exam(
             detail=f"Exam '{data.exam_name}' already exists.",
         )
 
+    # Shift existing display_orders to make room
+    if data.display_order is not None:
+        db.query(Exam).filter(
+            Exam.display_order >= data.display_order
+        ).update(
+            {Exam.display_order: Exam.display_order + 1},
+            synchronize_session='fetch'
+        )
+
     exam = Exam(**data.model_dump())
     db.add(exam)
     db.commit()
@@ -336,6 +362,14 @@ def update_exam(
         exam.exam_name = data.exam_name
 
     if data.display_order is not None:
+        # Shift other items to make room at the new position
+        db.query(Exam).filter(
+            Exam.display_order >= data.display_order,
+            Exam.id != exam_id,
+        ).update(
+            {Exam.display_order: Exam.display_order + 1},
+            synchronize_session='fetch'
+        )
         exam.display_order = data.display_order
 
     db.commit()

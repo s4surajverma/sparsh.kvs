@@ -101,7 +101,58 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    initMarksData();
+    // Load dropdowns on first show and each subsequent view activation
+    const viewMarks = document.getElementById('view-marks-entry');
+    let marksDropdownsLoaded = false;
+
+    async function refreshMarksDropdowns() {
+        try {
+            const classes = await apiClient.fetch('/academic/classes');
+            marksClass.innerHTML = '';
+            classes.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.class_name;
+                opt.dataset.sections = c.sections || '';
+                marksClass.appendChild(opt);
+            });
+            marksClass.dispatchEvent(new Event('change'));
+
+            const exams = await apiClient.fetch('/academic/exams');
+            marksExam.innerHTML = '';
+            exams.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.id;
+                opt.textContent = e.exam_name;
+                marksExam.appendChild(opt);
+            });
+        } catch (err) {
+            showMarksAlert('Failed to refresh dropdowns: ' + err.message);
+        }
+    }
+
+    async function initAndRefresh() {
+        if (!marksDropdownsLoaded) {
+            await initMarksData();
+            marksDropdownsLoaded = true;
+        } else {
+            await refreshMarksDropdowns();
+        }
+    }
+
+    if (viewMarks) {
+        const marksObs = new MutationObserver(mutations => {
+            mutations.forEach(m => {
+                if (m.attributeName === 'class' && !viewMarks.classList.contains('hidden')) {
+                    initAndRefresh();
+                }
+            });
+        });
+        marksObs.observe(viewMarks, { attributes: true });
+        if (!viewMarks.classList.contains('hidden')) initAndRefresh();
+    } else {
+        initMarksData();
+    }
 
     // --- Mode Toggle Logic ---
     modeRadios.forEach(radio => {
