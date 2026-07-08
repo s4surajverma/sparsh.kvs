@@ -102,7 +102,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Load dropdowns on first show and each subsequent view activation
-    const viewMarks = document.getElementById('view-marks-entry');
     let marksDropdownsLoaded = false;
 
     async function refreshMarksDropdowns() {
@@ -149,10 +148,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
         marksObs.observe(viewMarks, { attributes: true });
-        if (!viewMarks.classList.contains('hidden')) initAndRefresh();
+        if (!viewMarks.classList.contains('hidden')) {
+            initAndRefresh();
+        }
     } else {
         initMarksData();
     }
+
+    document.getElementById('btnGoToExcelImport')?.addEventListener('click', () => {
+        if (typeof window.switchView === 'function') {
+            window.switchView('import');
+        } else {
+            const link = document.querySelector('a[data-view="import"]');
+            if (link) link.click();
+        }
+    });
 
     // --- Mode Toggle Logic ---
     modeRadios.forEach(radio => {

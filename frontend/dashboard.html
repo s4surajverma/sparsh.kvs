@@ -78,18 +78,13 @@
                             </h6>
                             <ul class="nav flex-column mb-2">
                                 <li class="nav-item role-admin role-teacher hidden">
-                                    <a class="nav-link" href="/marks-entry" data-view="marks-entry">
-                                        <i class="bi bi-pencil-square me-2"></i> Marks Entry
-                                    </a>
-                                </li>
-                                <li class="nav-item role-admin role-teacher hidden">
-                                    <a class="nav-link" href="/import" data-view="import">
-                                        <i class="bi bi-file-earmark-spreadsheet me-2"></i> Excel Import
-                                    </a>
-                                </li>
-                                <li class="nav-item role-admin role-teacher hidden">
                                     <a class="nav-link" href="/student-entry" data-view="student-entry">
                                         <i class="bi bi-people me-2"></i> Student Entry
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin role-teacher hidden">
+                                    <a class="nav-link" href="/marks-entry" data-view="marks-entry">
+                                        <i class="bi bi-pencil-square me-2"></i> Marks Entry
                                     </a>
                                 </li>
                             </ul>
@@ -161,17 +156,17 @@
                                 </li>
                                 <li class="nav-item role-admin hidden">
                                     <a class="nav-link" href="/class-levels" data-view="class-levels">
-                                        <i class="bi bi-diagram-3 me-2"></i> Class Levels
+                                        <i class="bi bi-diagram-3 me-2"></i> Manage Classes
                                     </a>
                                 </li>
                                 <li class="nav-item role-admin hidden">
                                     <a class="nav-link" href="/subjects" data-view="subjects">
-                                        <i class="bi bi-book me-2"></i> Subjects
+                                        <i class="bi bi-book me-2"></i> Manage Subjects
                                     </a>
                                 </li>
                                 <li class="nav-item role-admin hidden">
                                     <a class="nav-link" href="/exams" data-view="exams">
-                                        <i class="bi bi-clipboard-check me-2"></i> Exams
+                                        <i class="bi bi-clipboard-check me-2"></i> Manage Exams
                                     </a>
                                 </li>
                                 <li class="nav-item role-admin hidden">
@@ -759,7 +754,11 @@
                             <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-pencil-square me-2 text-primary"></i> Marks Entry</h1>
                             <p class="text-muted small mb-0 mt-1">Record student progress</p>
                         </div>
-                        <div class="view-actions"></div>
+                        <div class="view-actions">
+                            <button class="btn btn-outline-success" id="btnGoToExcelImport">
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Excel Result Import
+                            </button>
+                        </div>
                     </div>
 
                     <div id="marksAlertArea"></div>
