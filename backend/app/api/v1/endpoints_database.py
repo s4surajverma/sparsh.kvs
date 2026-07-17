@@ -42,15 +42,25 @@ DELETION_ORDER = [
 
 def _get_target_engine(target: str):
     """Dynamically create a SQLAlchemy engine based on the target."""
+    url = None
     if target == "online":
         url = settings.ONLINE_DATABASE_URL
+        # Fallback to the main DATABASE_URL if it's a PostgreSQL string
+        if not url and settings.DATABASE_URL and ("postgres" in settings.DATABASE_URL):
+            url = settings.DATABASE_URL
     else:
         url = settings.LOCAL_DATABASE_URL
+        # Fallback to the main DATABASE_URL if it's a SQLite string
+        if not url and settings.DATABASE_URL and ("sqlite" in settings.DATABASE_URL):
+            url = settings.DATABASE_URL
+        # Safe default fallback for local sqlite if completely missing
+        if not url:
+            url = "sqlite:///./sras_local.db"
 
     if not url:
         raise HTTPException(
             status_code=400,
-            detail=f"Configuration for '{target}' database is missing in .env",
+            detail=f"Configuration for '{target}' database is missing in .env and could not be inferred.",
         )
 
     if url.startswith("postgresql://"):
