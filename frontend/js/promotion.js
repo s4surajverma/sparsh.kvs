@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateSelectedCount() {
         const checked = document.querySelectorAll('.promo-row-check:checked').length;
         document.getElementById('promoSelectedCount').textContent = checked;
+        // Also keep the heading count in sync
+        const headingCount = document.getElementById('promoPreviewCount');
+        if (headingCount) headingCount.textContent = checked + ' student(s)';
     }
 
     // ── Load dropdowns (years + classes) ──────────────────────────────
@@ -129,18 +132,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             previewStudents = students;
-            renderPreview(students, srcClassId, srcSection);
+
+            // Capture target label for preview heading
+            const tgtClassEl = document.getElementById('promoTgtClass');
+            const tgtClassName = tgtClassEl?.options[tgtClassEl.selectedIndex]?.text || '';
+
+            renderPreview(students, srcClassId, srcSection, tgtClassName, tgtSection);
             showStep(2);
         } catch (err) {
             showAlert('Failed to load students: ' + err.message);
         }
     });
 
-    function renderPreview(students, classId, section) {
+    function renderPreview(students, classId, section, tgtClassName, tgtSection) {
         // Build label from dropdown text
         const classEl = document.getElementById('promoSrcClass');
         const className = classEl?.options[classEl.selectedIndex]?.text || '';
-        document.getElementById('promoPreviewLabel').textContent = `${className} ${section} — ${students.length} student(s)`;
+        document.getElementById('promoPreviewLabel').innerHTML =
+            `<span class="text-muted fw-normal me-1">From:</span> <strong>${className} ${section}</strong>` +
+            `<span class="mx-2 text-primary">&#8594;</span>` +
+            `<span class="text-muted fw-normal me-1">To:</span> <strong>${tgtClassName} ${tgtSection}</strong>` +
+            `<span class="text-muted ms-2">— <span id="promoPreviewCount">${students.length} student(s)</span></span>`;
 
         const body = document.getElementById('promoStudentBody');
         body.innerHTML = students.map(s => `

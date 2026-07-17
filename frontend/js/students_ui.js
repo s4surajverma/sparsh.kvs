@@ -31,12 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
             : '';
     }
 
+    function showModalAlert(msg, type = 'danger') {
+        const area = document.getElementById('studentModalAlertArea');
+        if (!area) return;
+        area.innerHTML = msg
+            ? `<div class="alert alert-${type} alert-dismissible fade show py-2 mb-2">${msg}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`
+            : '';
+    }
+
     // ── Load / Render ──────────────────────────────────────────────────
 
     async function loadStudents(query = '', page = 1) {
         lastQuery   = query;
         currentPage = page;
-        tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Loading…</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Loading…</td></tr>';
         try {
             const skip   = (page - 1) * PAGE_SIZE;
             let url = `/students/search?limit=${PAGE_SIZE}&skip=${skip}`;
@@ -65,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderTable(students) {
         if (!students || students.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No students found.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No students found.</td></tr>';
             document.getElementById('studentRegistryPagination').classList.add('hidden');
             return;
         }
@@ -75,10 +83,22 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.innerHTML = `
                 <td><code>${s.admission_number}</code></td>
                 <td>${s.student_name}</td>
+                <td>${s.class_name || '<span class="text-muted">-</span>'}</td>
+                <td>${s.section ? `<span class="badge bg-secondary">${s.section}</span>` : '<span class="text-muted">-</span>'}</td>
+                <td>${s.roll_number || '<span class="text-muted">-</span>'}</td>
                 <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary btn-edit-student"
-                        data-adm="${s.admission_number}" data-name="${s.student_name}">
+                    <button class="btn btn-sm btn-outline-primary btn-edit-student me-1"
+                        data-adm="${s.admission_number}"
+                        data-name="${s.student_name}"
+                        data-enrollment-id="${s.enrollment_id || ''}"
+                        data-class-id="${s.class_id || ''}"
+                        data-section="${s.section || ''}"
+                        data-roll="${s.roll_number || ''}">
                         <i class="bi bi-pencil me-1"></i>Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-delete-student"
+                        data-adm="${s.admission_number}" data-name="${s.student_name}">
+                        <i class="bi bi-trash me-1"></i>Delete
                     </button>
                 </td>
             `;
@@ -86,8 +106,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         tableBody.querySelectorAll('.btn-edit-student').forEach(btn => {
             btn.addEventListener('click', e => {
+                const { adm, name, enrollmentId, classId, section, roll } = e.currentTarget.dataset;
+                openModal(adm, name, enrollmentId, classId, section, roll);
+            });
+        });
+        tableBody.querySelectorAll('.btn-delete-student').forEach(btn => {
+            btn.addEventListener('click', async e => {
                 const { adm, name } = e.currentTarget.dataset;
-                openModal(adm, name);
+                if (!confirm(`Are you sure you want to delete student "${name}" (${adm}) and their enrollments/results? This action cannot be undone.`)) return;
+                try {
+                    await apiClient.fetch(`/students/${encodeURIComponent(adm)}`, { method: 'DELETE' });
+                    showAlert('Student deleted successfully.', 'success');
+                    loadStudents(lastQuery, currentPage);
+                } catch (err) {
+                    showAlert('Failed to delete student: ' + err.message);
+                }
             });
         });
     }
@@ -124,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Modal ──────────────────────────────────────────────────────────
 
-    function openModal(adm = '', name = '') {
+    function openModal(adm = '', name = '', enrollmentId = '', classId = '', section = '', roll = '') {
         form.reset();
         const isEdit = !!adm;
         document.getElementById('studentModalTitle').textContent = isEdit ? 'Edit Student' : 'Add Student';
@@ -136,9 +169,93 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'Must be unique. Cannot be changed after creation.';
         document.getElementById('studentModalName').value = name;
 
+        // Store enrollment id for PUT /enrollments/{id} on save
+        let enrollmentIdField = document.getElementById('studentModalEnrollmentId');
+        if (!enrollmentIdField) {
+            enrollmentIdField = document.createElement('input');
+            enrollmentIdField.type = 'hidden';
+            enrollmentIdField.id   = 'studentModalEnrollmentId';
+            form.appendChild(enrollmentIdField);
+        }
+        enrollmentIdField.value = enrollmentId || '';
+
+        // Clear any previous modal error
+        showModalAlert('');
+
+        const enrollmentContainer = document.getElementById('studentModalEnrollmentFields');
+        if (enrollmentContainer) {
+            // Always show enrollment fields (both add and edit)
+            enrollmentContainer.classList.remove('hidden');
+            // Load classes, then pre-select current values when editing
+            loadClassesForStudentModal(classId, section, roll);
+        }
+
         if (!modalInstance) modalInstance = new bootstrap.Modal(document.getElementById('studentModal'));
         modalInstance.show();
     }
+
+    async function loadClassesForStudentModal(selectedClassId = '', selectedSection = '', selectedRoll = '') {
+        const classSelect   = document.getElementById('studentModalClass');
+        const sectionSelect = document.getElementById('studentModalSection');
+        const rollInput     = document.getElementById('studentModalRoll');
+        if (!classSelect || !sectionSelect) return;
+
+        classSelect.innerHTML   = '<option value="">Loading classes...</option>';
+        
+        // Immediately populate default A–H sections and keep dropdown enabled
+        populateSectionsDropdown(sectionSelect, 'A,B,C,D,E,F,G,H', selectedSection);
+        sectionSelect.disabled = false;
+
+        try {
+            const classes = await apiClient.fetch('/academic/classes');
+            classSelect.innerHTML = '<option value="">Select class...</option>';
+            classes.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.class_name;
+                opt.dataset.sections = c.sections || '';
+                if (String(c.id) === String(selectedClassId)) opt.selected = true;
+                classSelect.appendChild(opt);
+            });
+
+            // If pre-selecting a class, populate sections for that class and select the right one
+            if (selectedClassId) {
+                classSelect.dispatchEvent(new Event('change'));
+                setTimeout(() => {
+                    if (selectedSection) sectionSelect.value = selectedSection;
+                    if (selectedRoll && rollInput) rollInput.value = selectedRoll;
+                }, 50);
+            } else if (selectedRoll && rollInput) {
+                rollInput.value = selectedRoll;
+            }
+        } catch (err) {
+            classSelect.innerHTML = '<option value="">Failed to load classes</option>';
+        }
+    }
+
+    function populateSectionsDropdown(selectElement, sectionsStr, selectedVal = '') {
+        selectElement.innerHTML = '<option value="">Select section...</option>';
+        const sections = (sectionsStr || 'A,B,C,D,E,F,G,H').split(',').map(s => s.trim()).filter(Boolean);
+        sections.forEach(sec => {
+            const opt = document.createElement('option');
+            opt.value = sec;
+            opt.textContent = sec;
+            if (sec === selectedVal) opt.selected = true;
+            selectElement.appendChild(opt);
+        });
+        selectElement.disabled = false;
+    }
+
+    document.getElementById('studentModalClass')?.addEventListener('change', (e) => {
+        const sectionSelect = document.getElementById('studentModalSection');
+        if (!sectionSelect) return;
+        const selectedOpt = e.target.options[e.target.selectedIndex];
+        const raw = selectedOpt?.dataset.sections?.trim();
+        const sectionsStr = raw || 'A,B,C,D,E,F,G,H';
+
+        const currentVal = sectionSelect.value;
+        populateSectionsDropdown(sectionSelect, sectionsStr, currentVal);
+    });
 
     document.getElementById('btnNewStudent')?.addEventListener('click', () => openModal());
 
@@ -147,23 +264,50 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn  = document.getElementById('btnSaveStudent');
         btn.disabled = true;
 
-        const adm  = document.getElementById('studentModalAdm').value;
-        const admInput = document.getElementById('studentModalAdmInput').value.trim();
-        const name = document.getElementById('studentModalName').value.trim();
+        const adm        = document.getElementById('studentModalAdm').value;
+        const admInput   = document.getElementById('studentModalAdmInput').value.trim();
+        const name       = document.getElementById('studentModalName').value.trim();
+        const enrollmentId = document.getElementById('studentModalEnrollmentId')?.value || '';
+        const classId    = document.getElementById('studentModalClass')?.value;
+        const section    = document.getElementById('studentModalSection')?.value;
+        const rollStr    = document.getElementById('studentModalRoll')?.value;
+
         const payload = { admission_number: admInput, student_name: name };
 
         try {
             if (adm) {
-                await apiClient.fetch(`/students/${encodeURIComponent(adm)}`, { method: 'PUT', body: JSON.stringify({ student_name: name }) });
+                // Update student name
+                await apiClient.fetch(`/students/${encodeURIComponent(adm)}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ student_name: name }),
+                });
+
+                // Update enrollment (class / section / roll) if we have an enrollment ID
+                if (enrollmentId && (classId || section || rollStr)) {
+                    const enrollPayload = {};
+                    if (classId)  enrollPayload.class_level_id = parseInt(classId, 10);
+                    if (section)  enrollPayload.section        = section.toUpperCase();
+                    if (rollStr)  enrollPayload.roll_number    = parseInt(rollStr, 10);
+                    await apiClient.fetch(`/students/enrollments/${enrollmentId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(enrollPayload),
+                    });
+                }
+
                 showAlert('Student updated successfully.', 'success');
             } else {
+                if (classId && section && rollStr) {
+                    payload.class_level_id = parseInt(classId, 10);
+                    payload.section        = section;
+                    payload.roll_number    = parseInt(rollStr, 10);
+                }
                 await apiClient.fetch('/students/', { method: 'POST', body: JSON.stringify(payload) });
                 showAlert('Student added successfully.', 'success');
             }
             modalInstance.hide();
             loadStudents(lastQuery, currentPage);
         } catch (err) {
-            alert('Error: ' + err.message);
+            showModalAlert(err.message || 'An unexpected error occurred.');
         } finally {
             btn.disabled = false;
         }
@@ -174,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mutations.forEach(m => {
             if (m.attributeName === 'class' && !viewEl.classList.contains('hidden')) {
                 // Don't auto-load all — wait for user to search or click Show All
-                tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Search or click Show All to load students.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Search or click Show All to load students.</td></tr>';
                 document.getElementById('studentRegistryPagination').classList.add('hidden');
             }
         });

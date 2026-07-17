@@ -22,6 +22,7 @@ from app.api.v1.endpoints_student_import import router_import as student_import_
 from app.api.v1.endpoints_template_downloads import router_templates_dl as template_dl_router
 from app.api.v1.endpoints_promotion import router as promotion_router
 from app.api.v1.endpoints_marks_export import router as marks_export_router
+from app.api.v1.endpoints_database import router as database_router
 
 api_router = APIRouter()
 
@@ -65,4 +66,8 @@ api_router.include_router(users_router, prefix="/users", tags=["User Management"
 
 # --- System Settings (Admin Only) ---
 api_router.include_router(settings_router, prefix="/settings", tags=["System Settings"])
+
+# --- Database Management (Admin Only) ---
+api_router.include_router(database_router, prefix="/database", tags=["Database Management"])
+
 

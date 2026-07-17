@@ -13,9 +13,12 @@ from pydantic import BaseModel, ConfigDict
 # ============================================
 
 class StudentCreate(BaseModel):
-    """Request body for creating a new student."""
+    """Request body for creating a new student with optional active-year enrollment."""
     admission_number: str  # Permanent unique ID — immutable after creation
     student_name: str
+    class_level_id: int | None = None
+    section: str | None = None
+    roll_number: int | None = None
 
 
 class StudentUpdate(BaseModel):
@@ -37,8 +40,10 @@ class StudentSearchResponse(BaseModel):
     student_name: str
     academic_year: str | None = None
     class_name: str | None = None
+    class_id: int | None = None
     section: str | None = None
     roll_number: int | None = None
+    enrollment_id: int | None = None
 
 
 # ============================================

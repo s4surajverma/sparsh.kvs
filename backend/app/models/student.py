@@ -53,11 +53,15 @@ class StudentEnrollment(Base):
     roll_number: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # --- Constraints ---
-    # A student can only be enrolled once per academic year
+    # A student can only be enrolled once per academic year, and roll number must be unique per section/class/year
     __table_args__ = (
         UniqueConstraint(
             "admission_number", "academic_year_id",
             name="uq_student_year_enrollment"
+        ),
+        UniqueConstraint(
+            "academic_year_id", "class_level_id", "section", "roll_number",
+            name="uq_year_class_section_roll"
         ),
     )
 

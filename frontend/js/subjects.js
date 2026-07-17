@@ -47,12 +47,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><strong>${item.subject_name}</strong></td>
                 <td>${item.subject_code ? `<code class="text-primary">${item.subject_code}</code>` : '<span class="text-muted">—</span>'}</td>
                 <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary btn-edit"
+                    <button class="btn btn-sm btn-outline-primary btn-edit me-1"
                         data-id="${item.id}"
                         data-name="${item.subject_name}"
                         data-code="${item.subject_code || ''}"
                         title="Edit">
                         <i class="bi bi-pencil me-1"></i>Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-delete"
+                        data-id="${item.id}"
+                        data-name="${item.subject_name}"
+                        title="Delete">
+                        <i class="bi bi-trash me-1"></i>Delete
                     </button>
                 </td>
             `;
@@ -66,6 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', e => {
                 const { id, name, code } = e.currentTarget.dataset;
                 openModal(id, name, code);
+            });
+        });
+
+        tableBody.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async e => {
+                const { id, name } = e.currentTarget.dataset;
+                if (!confirm(`Are you sure you want to delete subject "${name}"? This action cannot be undone.`)) return;
+                try {
+                    await apiClient.fetch(`/academic/subjects/${id}`, { method: 'DELETE' });
+                    showAlert('Subject deleted successfully.', 'success');
+                    loadSubjects();
+                } catch (err) {
+                    showAlert('Failed to delete subject: ' + err.message);
+                }
             });
         });
     }

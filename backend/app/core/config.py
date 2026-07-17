@@ -27,6 +27,8 @@ class Settings(BaseSettings):
 
     # --- Database ---
     DATABASE_URL: str
+    LOCAL_DATABASE_URL: str | None = None
+    ONLINE_DATABASE_URL: str | None = None
 
     # --- Storage ---
     STORAGE_PROVIDER: str = "local"

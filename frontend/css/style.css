@@ -403,3 +403,65 @@ a:hover {
     border-bottom-color: var(--primary);
     font-weight: 600;
 }
+
+/* ==============================================================
+   Responsive Layout Fixes (Mobile & Tablet)
+   ============================================================== */
+
+/* Prevent long text in sidebar from breaking layout on smaller desktops/tablets */
+.sidebar .nav-link {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tablet (Medium devices) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .sidebar .nav-link {
+        padding: 0.5rem 0.75rem;
+        margin: 0.2rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    .sidebar-heading {
+        padding: 0 0.75rem;
+        font-size: 0.7rem;
+    }
+    .main-content {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* Mobile (Small devices) */
+@media (max-width: 767.98px) {
+    .sidebar {
+        top: 56px;
+        padding: 1rem 0;
+        width: 100% !important; 
+        max-width: 100%;
+        background-color: var(--bg-surface);
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .sidebar-sticky {
+        height: auto;
+        max-height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+    
+    .main-content {
+        margin-top: 56px;
+        padding: 1.5rem 1rem;
+    }
+    
+    /* Make tables fully scrollable without breaking cards */
+    .section-card {
+        padding: 1.25rem;
+    }
+    
+    /* Stack form controls better on mobile */
+    .row.g-3 > [class*="col-"] {
+        margin-bottom: 0.5rem;
+    }
+}

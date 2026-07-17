@@ -57,7 +57,7 @@ const apiClient = {
             const data = await response.json().catch(() => null);
 
             if (!response.ok) {
-                const errorMsg = data?.detail || response.statusText;
+                const errorMsg = data?.message || data?.detail || response.statusText;
                 throw new Error(errorMsg);
             }
 
@@ -83,7 +83,7 @@ const apiClient = {
         const data = await response.json().catch(() => null);
 
         if (!response.ok) {
-            const errorMsg = data?.detail || response.statusText;
+            const errorMsg = data?.message || data?.detail || response.statusText;
             throw new Error(errorMsg);
         }
 
@@ -110,7 +110,7 @@ const apiClient = {
                 throw new Error('Unauthorized');
             }
             const data = await response.json().catch(() => null);
-            if (!response.ok) throw new Error(data?.detail || response.statusText);
+            if (!response.ok) throw new Error(data?.message || data?.detail || response.statusText);
             return data;
         } catch (error) {
             console.error('API Error:', error);
@@ -135,7 +135,7 @@ const apiClient = {
             }
             if (!response.ok) {
                 const data = await response.json().catch(() => null);
-                throw new Error(data?.detail || response.statusText);
+                throw new Error(data?.message || data?.detail || response.statusText);
             }
 
             const blob = await response.blob();

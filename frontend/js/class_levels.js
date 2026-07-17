@@ -53,13 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><span class="badge bg-light text-dark border">${item.display_order}</span></td>
                 <td>${sectionsHtml}</td>
                 <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary btn-edit"
+                    <button class="btn btn-sm btn-outline-primary btn-edit me-1"
                         data-id="${item.id}"
                         data-name="${item.class_name}"
                         data-order="${item.display_order}"
                         data-sections="${item.sections || ''}"
                         title="Edit">
                         <i class="bi bi-pencil me-1"></i>Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-delete"
+                        data-id="${item.id}"
+                        data-name="${item.class_name}"
+                        title="Delete">
+                        <i class="bi bi-trash me-1"></i>Delete
                     </button>
                 </td>
             `;
@@ -75,10 +81,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 openModal(id, name, parseInt(order), sections);
             });
         });
+
+        tableBody.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async e => {
+                const { id, name } = e.currentTarget.dataset;
+                if (!confirm(`Are you sure you want to delete class level "${name}"? This action cannot be undone.`)) return;
+                try {
+                    await apiClient.fetch(`/academic/classes/${id}`, { method: 'DELETE' });
+                    showAlert('Class level deleted successfully.', 'success');
+                    loadClassLevels();
+                } catch (err) {
+                    showAlert('Failed to delete class level: ' + err.message);
+                }
+            });
+        });
     }
 
     // --- Modal ---
-    function openModal(id = '', name = '', order = '', sections = 'A,B,C,D,E,F,G,H') {
+    function openModal(id = '', name = '', order = '', sections = '') {
         form.reset();
         document.getElementById('classLevelModalTitle').textContent = id ? 'Edit Class Level' : 'Add Class Level';
         document.getElementById('classLevelId').value = id;

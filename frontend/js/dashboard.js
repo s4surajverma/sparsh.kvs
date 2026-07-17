@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- 3. View Navigation ---
     // Map of URL path segments to view IDs
-    const validViews = ['home', 'search', 'marks-entry', 'import', 'reports', 'users', 'academic-years', 'class-levels', 'subjects', 'exams', 'student-analytics', 'class-analytics', 'subject-analytics', 'student-entry', 'student-import', 'bulk-promotion', 'storage-settings', 'about'];
+    const validViews = ['home', 'search', 'marks-entry', 'import', 'reports', 'users', 'academic-years', 'class-levels', 'subjects', 'exams', 'student-analytics', 'class-analytics', 'subject-analytics', 'student-entry', 'student-import', 'bulk-promotion', 'storage-settings', 'database-management', 'about'];
 
     const navLinks = document.querySelectorAll('#sidebarMenu .nav-link');
     const views = document.querySelectorAll('.view-section');

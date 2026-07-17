@@ -22,6 +22,9 @@ from app.api.deps import (
 )
 from app.models.user import User
 from app.models.academic import AcademicYear, ClassLevel, Subject, Exam
+from app.models.student import StudentEnrollment
+from app.models.result import StudentResult
+from app.models.import_batch import ImportBatch
 from app.schemas.academic_schema import (
     AcademicYearCreate, AcademicYearUpdate, AcademicYearResponse,
     ClassLevelCreate, ClassLevelUpdate, ClassLevelResponse,
@@ -125,6 +128,49 @@ def set_current_academic_year(
     return year
 
 
+@router.delete("/years/{year_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_academic_year(
+    year_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin),
+):
+    """Delete an academic year and all related data. Admin only."""
+    year = db.query(AcademicYear).filter_by(id=year_id).first()
+    if not year:
+        raise HTTPException(status_code=404, detail="Academic year not found.")
+    if year.is_current:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete the currently active academic year."
+        )
+
+    # Cascade: results → enrollments → import_batches → historical_reports → year
+    enrollment_ids = [
+        row[0] for row in
+        db.query(StudentEnrollment.id).filter(StudentEnrollment.academic_year_id == year_id).all()
+    ]
+    if enrollment_ids:
+        db.query(StudentResult).filter(
+            StudentResult.student_enrollment_id.in_(enrollment_ids)
+        ).delete(synchronize_session=False)
+    db.query(StudentEnrollment).filter(
+        StudentEnrollment.academic_year_id == year_id
+    ).delete(synchronize_session=False)
+    db.query(ImportBatch).filter(
+        ImportBatch.academic_year_id == year_id
+    ).delete(synchronize_session=False)
+
+    from app.models.report import HistoricalReport
+    db.query(HistoricalReport).filter(
+        HistoricalReport.academic_year_id == year_id
+    ).delete(synchronize_session=False)
+
+    db.expire_all()
+    year = db.query(AcademicYear).filter_by(id=year_id).first()
+    db.delete(year)
+    db.commit()
+
+
 # ============================================
 # CLASS LEVEL ENDPOINTS
 # ============================================
@@ -136,6 +182,19 @@ def list_class_levels(
 ):
     """List all class levels, ordered by display_order."""
     return db.query(ClassLevel).order_by(ClassLevel.display_order).all()
+
+
+def clean_sections(sections_str: str | None) -> str | None:
+    if not sections_str:
+        return None
+    seen = set()
+    cleaned = []
+    for s in sections_str.split(','):
+        s_clean = s.strip().upper()
+        if s_clean and s_clean not in seen:
+            seen.add(s_clean)
+            cleaned.append(s_clean)
+    return ",".join(cleaned) if cleaned else None
 
 
 @router.post("/classes", response_model=ClassLevelResponse, status_code=status.HTTP_201_CREATED)
@@ -161,7 +220,10 @@ def create_class_level(
             synchronize_session='fetch'
         )
 
-    cls = ClassLevel(**data.model_dump())
+    cls_dict = data.model_dump()
+    if cls_dict.get("sections"):
+        cls_dict["sections"] = clean_sections(cls_dict["sections"])
+    cls = ClassLevel(**cls_dict)
     db.add(cls)
     db.commit()
     db.refresh(cls)
@@ -204,11 +266,58 @@ def update_class_level(
         cls.display_order = data.display_order
 
     if data.sections is not None:
-        cls.sections = data.sections
+        cls.sections = clean_sections(data.sections)
 
     db.commit()
     db.refresh(cls)
     return cls
+
+
+@router.delete("/classes/{class_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_class_level(
+    class_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin),
+):
+    """Delete a class level. Cascades to enrollments and their results. Admin only."""
+    cls = db.query(ClassLevel).filter_by(id=class_id).first()
+    if not cls:
+        raise HTTPException(status_code=404, detail="Class level not found.")
+
+    # Query enrollment IDs directly (avoid loading ORM objects into session identity map)
+    enrollment_ids = [
+        row[0] for row in
+        db.query(StudentEnrollment.id).filter(StudentEnrollment.class_level_id == class_id).all()
+    ]
+
+    if enrollment_ids:
+        # Delete all marks/results tied to those enrollments
+        db.query(StudentResult).filter(
+            StudentResult.student_enrollment_id.in_(enrollment_ids)
+        ).delete(synchronize_session=False)
+        # Delete the enrollments
+        db.query(StudentEnrollment).filter(
+            StudentEnrollment.class_level_id == class_id
+        ).delete(synchronize_session=False)
+
+    # Delete import batches referencing this class
+    db.query(ImportBatch).filter(
+        ImportBatch.class_level_id == class_id
+    ).delete(synchronize_session=False)
+
+    # Expire all tracked ORM objects so SQLAlchemy doesn't attempt to
+    # re-UPDATE the now-deleted enrollment rows during flush
+    db.expire_all()
+
+    cls = db.query(ClassLevel).filter_by(id=class_id).first()
+    db.delete(cls)
+    db.commit()
+
+    # Re-sequence display_order of remaining classes to remove gaps (1, 2, 3, ...)
+    remaining = db.query(ClassLevel).order_by(ClassLevel.display_order).all()
+    for new_order, remaining_cls in enumerate(remaining, start=1):
+        remaining_cls.display_order = new_order
+    db.commit()
 
 
 # ============================================
@@ -294,6 +403,28 @@ def update_subject(
     return subj
 
 
+@router.delete("/subjects/{subject_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_subject(
+    subject_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin),
+):
+    """Delete a subject and all related results. Admin only."""
+    subj = db.query(Subject).filter_by(id=subject_id).first()
+    if not subj:
+        raise HTTPException(status_code=404, detail="Subject not found.")
+
+    # Cascade: delete all results for this subject
+    db.query(StudentResult).filter(
+        StudentResult.subject_id == subject_id
+    ).delete(synchronize_session=False)
+
+    db.expire_all()
+    subj = db.query(Subject).filter_by(id=subject_id).first()
+    db.delete(subj)
+    db.commit()
+
+
 # ============================================
 # EXAM ENDPOINTS
 # ============================================
@@ -375,3 +506,29 @@ def update_exam(
     db.commit()
     db.refresh(exam)
     return exam
+
+
+@router.delete("/exams/{exam_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_exam(
+    exam_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin),
+):
+    """Delete an exam and all related data. Admin only."""
+    exam = db.query(Exam).filter_by(id=exam_id).first()
+    if not exam:
+        raise HTTPException(status_code=404, detail="Exam not found.")
+
+    # Cascade: results → import_batches → exam
+    db.query(StudentResult).filter(
+        StudentResult.exam_id == exam_id
+    ).delete(synchronize_session=False)
+    db.query(ImportBatch).filter(
+        ImportBatch.exam_id == exam_id
+    ).delete(synchronize_session=False)
+
+    db.expire_all()
+    exam = db.query(Exam).filter_by(id=exam_id).first()
+    db.delete(exam)
+    db.commit()
+

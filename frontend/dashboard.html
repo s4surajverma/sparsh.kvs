@@ -87,6 +87,11 @@
                                         <i class="bi bi-pencil-square me-2"></i> Marks Entry
                                     </a>
                                 </li>
+                                <li class="nav-item role-admin role-teacher role-principal hidden">
+                                    <a class="nav-link" href="/reports" data-view="reports">
+                                        <i class="bi bi-journal-bookmark me-2"></i> Previous Years' Report Cards
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 
@@ -99,11 +104,6 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="/search" data-view="search">
                                         <i class="bi bi-search me-2"></i> Student Search
-                                    </a>
-                                </li>
-                                <li class="nav-item role-admin role-teacher role-principal hidden">
-                                    <a class="nav-link" href="/reports" data-view="reports">
-                                        <i class="bi bi-journal-bookmark me-2"></i> Previous Years' Report Cards
                                     </a>
                                 </li>
                             </ul>
@@ -172,6 +172,11 @@
                                 <li class="nav-item role-admin hidden">
                                     <a class="nav-link" href="/storage-settings" data-view="storage-settings">
                                         <i class="bi bi-hdd me-2"></i> Storage Settings
+                                    </a>
+                                </li>
+                                <li class="nav-item role-admin hidden">
+                                    <a class="nav-link" href="/database-management" data-view="database-management">
+                                        <i class="bi bi-database-gear me-2"></i> Database Management
                                     </a>
                                 </li>
                             </ul>
@@ -1230,11 +1235,14 @@
                                 <tr>
                                     <th>Admission No</th>
                                     <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Section</th>
+                                    <th>Roll No</th>
                                     <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="studentRegistryTableBody">
-                                <tr><td colspan="3" class="text-center text-muted">Search or click Show All to load students.</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted">Search or click Show All to load students.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1627,6 +1635,132 @@
                     </div>
                 </div>
 
+                <!-- View: Database Management -->
+                <div id="view-database-management" class="view-section hidden">
+                    <div class="view-header d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
+                        <div>
+                            <h1 class="h2 fw-bold text-dark mb-0"><i class="bi bi-database-gear me-2 text-primary"></i> Database Management</h1>
+                            <p class="text-muted small mb-0 mt-1">View tables, record counts, and manage data</p>
+                        </div>
+                        <div class="view-actions d-flex gap-3 align-items-center flex-wrap">
+                            <div class="btn-group shadow-sm" role="group" aria-label="Database Target">
+                                <input type="radio" class="btn-check" name="dbTarget" id="dbTargetLocal" value="local" checked autocomplete="off">
+                                <label class="btn btn-outline-primary" for="dbTargetLocal"><i class="bi bi-hdd me-1"></i> Local SQLite</label>
+
+                                <input type="radio" class="btn-check" name="dbTarget" id="dbTargetOnline" value="online" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="dbTargetOnline"><i class="bi bi-cloud me-1"></i> Online PostgreSQL</label>
+                            </div>
+                            <button class="btn btn-primary shadow-sm" id="btnRefreshDbInfo">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="dbAlertArea"></div>
+
+                    <!-- Database Info Card -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                                        <i class="bi bi-database text-white fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 0.05em; font-size: 0.75rem;">Database Type</h6>
+                                        <h5 class="fw-bold mb-0" id="dbTypeDisplay" style="color: var(--text-main);">Loading...</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, #10b981, #059669);">
+                                        <i class="bi bi-table text-white fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 0.05em; font-size: 0.75rem;">Total Tables</h6>
+                                        <h5 class="fw-bold mb-0" id="dbTableCount" style="color: var(--text-main);">--</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                        <i class="bi bi-layers text-white fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted fw-bold mb-0 text-uppercase" style="letter-spacing: 0.05em; font-size: 0.75rem;">Total Records</h6>
+                                        <h5 class="fw-bold mb-0" id="dbTotalRecords" style="color: var(--text-main);">--</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Connection Status -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-0 py-3 px-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold"><i class="bi bi-check-circle me-2 text-success"></i> Connection Status</h5>
+                                <span class="badge rounded-pill px-3 py-2" id="dbConnectionBadge">Checking...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tables Listing -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-0 py-3 px-4">
+                            <h5 class="mb-0 fw-bold"><i class="bi bi-table me-2 text-primary"></i> Database Tables</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0" id="dbTablesTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="px-4 py-3">#</th>
+                                            <th class="px-4 py-3">Table Name</th>
+                                            <th class="px-4 py-3">Columns</th>
+                                            <th class="px-4 py-3">Records</th>
+                                            <th class="px-4 py-3">Status</th>
+                                            <th class="px-4 py-3 text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dbTablesBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                                Loading table information...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="card border-danger border-2 rounded-4 mb-4">
+                        <div class="card-header bg-danger bg-opacity-10 border-0 py-3 px-4">
+                            <h5 class="mb-0 fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i> Danger Zone</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-1">Reset Entire Database</h6>
+                                    <p class="text-muted small mb-0">This will permanently delete ALL data from every table and re-seed with defaults. The admin account will be preserved. This action <strong>cannot be undone</strong>.</p>
+                                </div>
+                                <button class="btn btn-danger ms-4 flex-shrink-0" id="btnResetEntireDb">
+                                    <i class="bi bi-nuclear me-1"></i> Reset All Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Global Footer -->
                 <footer class="mt-auto py-4 text-center mt-5 w-100">
                     <hr class="mb-4" style="opacity: 0.1;">
@@ -1783,6 +1917,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
+                        <div id="studentModalAlertArea"></div>
                         <input type="hidden" id="studentModalAdm">
                         <div class="mb-3">
                             <label class="form-label">Admission Number</label>
@@ -1792,6 +1927,28 @@
                         <div class="mb-3">
                             <label class="form-label">Student Name</label>
                             <input type="text" class="form-control" id="studentModalName" required placeholder="Full name">
+                        </div>
+                        <div id="studentModalEnrollmentFields" class="border-top pt-3 mt-3">
+                            <h6 class="fw-semibold text-primary mb-3"><i class="bi bi-journal-check me-1"></i>Active Year Enrollment (Optional)</h6>
+                            <div class="row g-2">
+                                <div class="col-md-5 mb-2">
+                                    <label class="form-label small">Class Level</label>
+                                    <select class="form-select" id="studentModalClass">
+                                        <option value="">Select class...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label small">Section</label>
+                                    <select class="form-select" id="studentModalSection" disabled>
+                                        <option value="">Select section...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label small">Roll No</label>
+                                    <input type="number" class="form-control" id="studentModalRoll" min="1" placeholder="e.g. 1">
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-1">If specified, assigns this student to the current active academic year.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1906,17 +2063,80 @@
         </div>
     </div>
 
+    <!-- Modal: Confirm Table Reset -->
+    <div class="modal fade" id="confirmTableResetModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Table Reset</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger d-flex align-items-start" role="alert">
+                        <i class="bi bi-shield-exclamation me-2 mt-1"></i>
+                        <div>
+                            <strong>Warning:</strong> This will permanently delete <strong>all rows</strong> from the table <strong id="resetTableNameDisplay"></strong>. Any dependent tables will also be cleared. This action cannot be undone.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">To confirm, type the table name below:</label>
+                        <input type="text" class="form-control" id="confirmTableNameInput" placeholder="" autocomplete="off">
+                        <input type="hidden" id="resetTableNameHidden">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmTableReset" disabled>
+                        <i class="bi bi-trash me-1"></i> Reset Table
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm Full Database Reset -->
+    <div class="modal fade" id="confirmFullResetModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-nuclear me-2"></i> Reset Entire Database</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                        <strong>CRITICAL WARNING:</strong> This will permanently delete <strong>ALL data</strong> from <strong>every table</strong> in the database. Default seed data (admin account, classes, exams, subjects, academic years) will be re-created after the reset.
+                    </div>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>What will be preserved:</strong> Database schema (table structures) and default admin account.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">To confirm, type <code>RESET ALL DATA</code> below:</label>
+                        <input type="text" class="form-control" id="confirmFullResetInput" placeholder="Type RESET ALL DATA" autocomplete="off">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmFullReset" disabled>
+                        <i class="bi bi-nuclear me-1"></i> Reset Entire Database
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/api.js"></script>
+    <script src="/js/api.js?v=3"></script>
     <script src="/js/dashboard.js"></script>
     <script src="/js/academic_years.js"></script>
     <script src="/js/class_levels.js"></script>
     <script src="/js/subjects.js"></script>
     <script src="/js/exams.js"></script>
     <script src="/js/analytics.js"></script>
-    <script src="/js/students_ui.js"></script>
+    <script src="/js/students_ui.js?v=4"></script>
     <script src="/js/student_import.js"></script>
     <script src="/js/promotion.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
@@ -1925,5 +2145,6 @@
     <script src="/js/reports.js"></script>
     <script src="/js/users.js"></script>
     <script src="/js/marks_entry.js?v=2"></script>
+    <script src="/js/database_management.js"></script>
 </body>
 </html>

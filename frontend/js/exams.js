@@ -47,12 +47,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td><strong>${item.exam_name}</strong></td>
                 <td><span class="badge bg-light text-dark border">${item.display_order}</span></td>
                 <td class="text-end">
-                    <button class="btn btn-sm btn-outline-primary btn-edit"
+                    <button class="btn btn-sm btn-outline-primary btn-edit me-1"
                         data-id="${item.id}"
                         data-name="${item.exam_name}"
                         data-order="${item.display_order}"
                         title="Edit">
                         <i class="bi bi-pencil me-1"></i>Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger btn-delete"
+                        data-id="${item.id}"
+                        data-name="${item.exam_name}"
+                        title="Delete">
+                        <i class="bi bi-trash me-1"></i>Delete
                     </button>
                 </td>
             `;
@@ -66,6 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', e => {
                 const { id, name, order } = e.currentTarget.dataset;
                 openModal(id, name, parseInt(order));
+            });
+        });
+
+        tableBody.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async e => {
+                const { id, name } = e.currentTarget.dataset;
+                if (!confirm(`Are you sure you want to delete exam "${name}"? This action cannot be undone.`)) return;
+                try {
+                    await apiClient.fetch(`/academic/exams/${id}`, { method: 'DELETE' });
+                    showAlert('Exam deleted successfully.', 'success');
+                    loadExams();
+                } catch (err) {
+                    showAlert('Failed to delete exam: ' + err.message);
+                }
             });
         });
     }

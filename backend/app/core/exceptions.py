@@ -32,6 +32,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             content={
                 "error": "HTTP_ERROR",
                 "message": exc.detail,
+                "detail": exc.detail,
             },
         )
 
@@ -44,12 +45,14 @@ def register_exception_handlers(app: FastAPI) -> None:
         first_error = errors[0] if errors else {}
         field = " -> ".join(str(loc) for loc in first_error.get("loc", []))
         message = first_error.get("msg", "Validation error")
+        full_message = f"{field}: {message}"
 
         return JSONResponse(
             status_code=422,
             content={
                 "error": "VALIDATION_ERROR",
-                "message": f"{field}: {message}",
+                "message": full_message,
+                "detail": full_message,
                 "details": jsonable_encoder(errors),
             },
         )
@@ -58,10 +61,12 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def unhandled_exception_handler(request: Request, exc: Exception):
         """Catches all unhandled exceptions to prevent raw stack traces."""
         logger.error(f"Unhandled exception: {exc}", exc_info=True)
+        msg = "An unexpected error occurred. Please try again later."
         return JSONResponse(
             status_code=500,
             content={
                 "error": "INTERNAL_SERVER_ERROR",
-                "message": "An unexpected error occurred. Please try again later.",
+                "message": msg,
+                "detail": msg,
             },
         )

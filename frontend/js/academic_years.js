@@ -47,10 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? '<span class="badge bg-success">Current Active Year</span>' 
                 : '<span class="badge bg-secondary">Archived</span>';
 
-            let actionsHtml = `<button class="btn btn-sm btn-outline-primary btn-edit-year" data-id="${year.id}" data-label="${year.year_label}" data-current="${year.is_current}" title="Edit Year">Edit</button>`;
+            let actionsHtml = `<button class="btn btn-sm btn-outline-primary btn-edit-year" data-id="${year.id}" data-label="${year.year_label}" data-current="${year.is_current}" title="Edit Year"><i class="bi bi-pencil me-1"></i>Edit</button>`;
             
             if (!year.is_current) {
                 actionsHtml += ` <button class="btn btn-sm btn-success btn-set-current" data-id="${year.id}" title="Set as Current">Set Active</button>`;
+                actionsHtml += ` <button class="btn btn-sm btn-outline-danger btn-delete-year" data-id="${year.id}" data-label="${year.year_label}" title="Delete Year"><i class="bi bi-trash me-1"></i>Delete</button>`;
             }
 
             const tr = document.createElement('tr');
@@ -91,6 +92,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     loadYears();
                 } catch (err) {
                     showAlert('Failed to set active year: ' + err.message);
+                }
+            });
+        });
+
+        // Delete
+        document.querySelectorAll('.btn-delete-year').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const btnEl = e.currentTarget;
+                const id = btnEl.dataset.id;
+                const label = btnEl.dataset.label;
+                if (!confirm(`Are you sure you want to delete academic year "${label}"? This action cannot be undone.`)) return;
+                try {
+                    await apiClient.fetch(`/academic/years/${id}`, { method: 'DELETE' });
+                    showAlert('Academic year deleted successfully.', 'success');
+                    loadYears();
+                } catch (err) {
+                    showAlert('Failed to delete academic year: ' + err.message);
                 }
             });
         });
